@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:trusty
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: sh ci/linux.sh build
+      - run:
+          name: Build Android
+          command: BUILD_ANDROID=1 sh ci/linux.sh build
