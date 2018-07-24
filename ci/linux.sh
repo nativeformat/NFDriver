@@ -11,15 +11,14 @@ sudo apt-get install -y clang-format-3.9
 sudo apt-get install -y ninja-build
 sudo apt-get install -y clang-3.9
 sudo apt-get install -y libc++-dev
+sudo apt-get install -y python-pip
+sudo apt-get install -y python-virtualenv
 
 export CC=clang-3.9
 export CXX=clang++-3.9
 
 # Install virtualenv
-VIRTUALENV_LOCAL_PATH='/virtualenv-15.1.0/virtualenv.py'
-VIRTUALENV_PATH=`python tools/vulcan/bin/vulcan.py -v -f tools/virtualenv.vulcan -p virtualenv-15.1.0`
-VIRTUALENV_PATH=$VIRTUALENV_PATH$VIRTUALENV_LOCAL_PATH
-$VIRTUALENV_PATH nfdriver_env
+virtualenv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
