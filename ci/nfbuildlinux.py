@@ -18,6 +18,7 @@ class NFBuildLinux(NFBuild):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.project_file = 'build.ninja'
+        self.cmake_binary = 'cmake'
 
     def generateProject(self,
                         ios=False,
