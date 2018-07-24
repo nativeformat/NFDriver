@@ -30,87 +30,8 @@ class NFBuild(object):
         os.makedirs(self.build_directory)
         os.makedirs(self.output_directory)
 
-    def vulcanDownload(self, vulcan_file, vulcan_id):
-        vulcan_binary = os.path.join(
-            os.path.join(
-                os.path.join(
-                    'tools',
-                    'vulcan'),
-                'bin'),
-            'vulcan.py')
-        extraction_folder = subprocess.check_output([
-            'python',
-            vulcan_binary,
-            '-v',
-            '-f',
-            vulcan_file,
-            '-i',
-            'id=' + vulcan_id,
-            '-p',
-            vulcan_id])
-        return extraction_folder.strip()
-
-    def installCmake(self):
-        cmake_vulcan_file = os.path.join(
-            os.path.join(
-                os.path.join(
-                    os.path.join(
-                        'tools',
-                        'buildtools'),
-                    'spotify_buildtools'),
-                'software'),
-            'cmake.vulcan')
-        cmake_extraction_folder = self.vulcanDownload(
-            cmake_vulcan_file,
-            'cmake-3.8.2')
-        self.cmake_binary = os.path.join(
-            os.path.join(
-                os.path.join(
-                    cmake_extraction_folder,
-                    'cmakebundle'),
-                'bin'),
-            'cmake')
-
-    def installAndroidNDK(self):
-        android_vulcan_file = os.path.join(
-            os.path.join(
-                os.path.join(
-                    os.path.join(
-                        'tools',
-                        'buildtools'),
-                    'spotify_buildtools'),
-                'software'),
-            'android_ndk.vulcan')
-        android_extract_folder = self.vulcanDownload(
-            android_vulcan_file,
-            'android_ndk-r16b')
-        self.android_ndk_folder = android_extract_folder
-        os.environ['ANDROID_NDK'] = android_extract_folder
-        os.environ['ANDROID_NDK_HOME'] = android_extract_folder
-
-    def installAndroidSDK(self):
-        androidsdk_vulcan_file = os.path.join('tools', 'android-sdk.vulcan')
-        androidsdk_extract_folder = self.vulcanDownload(
-            androidsdk_vulcan_file,
-            'android-sdk')
-        android_home = os.path.join(androidsdk_extract_folder, 'sdk')
-        os.environ['ANDROID_HOME'] = android_home
-        licenses_dir = os.path.join(android_home, 'licenses')
-        if not os.path.isdir(licenses_dir):
-            os.makedirs(licenses_dir)
-        license_file = os.path.join(licenses_dir, 'android-sdk-license')
-        with open(license_file, 'w') as sdk_license_file:
-            sdk_license_file.write('d56f5187479451eabf01fb78af6dfcb131a6481e')
-    
-    def installVulcanDependencies(self, android=False):
-        self.installCmake()
-        if android:
-          self.installAndroidNDK()
-          self.installAndroidSDK()
-
     def installDependencies(self, android=False):
         self.android = android
-        self.installVulcanDependencies(android=android)
 
     def generateProject(self,
                         ios=False,
