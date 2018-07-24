@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Must be run inside a schroot environment
-
 # Exit on any non-zero status
 set -e
 
