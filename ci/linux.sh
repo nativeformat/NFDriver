@@ -2,6 +2,7 @@
 
 # Exit on any non-zero status
 set -e
+pwd
 
 # Install system dependencies
 sudo apt-get update
@@ -17,7 +18,8 @@ sudo apt-get install -y --no-install-recommends apt-utils \
                                                 libyaml-dev \
                                                 python-dev \
                                                 python3-dev \
-                                                gcc
+                                                gcc \
+                                                git
 sudo apt-get install -y --reinstall binutils
 
 
@@ -25,8 +27,6 @@ sudo apt-get install -y --reinstall binutils
 wget https://cmake.org/files/v3.6/cmake-3.6.3-Linux-x86_64.sh
 chmod +x cmake-3.6.3-Linux-x86_64.sh
 sudo sh cmake-3.6.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
-sudo whereis ld
-whereis ld
 
 export CC=clang-3.9
 export CXX=clang++-3.9
@@ -36,9 +36,9 @@ virtualenv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
-pip install pyyaml
-pip install flake8
-pip install cmakelint
+pip install pyyaml \
+             flake8 \
+             cmakelint
 
 # Execute our python build tools
 if [ -n "$BUILD_ANDROID" ]; then
