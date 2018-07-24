@@ -27,7 +27,7 @@ pip install flake8
 pip install cmakelint
 
 # Execute our python build tools
-if [ "$1" != "" ]; then
+if [ -n "$BUILD_ANDROID" ]; then
     python ci/androidlinux.py
 else
     python ci/linux.py "$@"
