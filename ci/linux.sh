@@ -13,6 +13,7 @@ sudo apt-get install -y clang-3.9
 sudo apt-get install -y libc++-dev
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-virtualenv
+sudo apt-get install -y cmake
 
 export CC=clang-3.9
 export CXX=clang++-3.9
