@@ -19,6 +19,7 @@ class NFBuildLinux(NFBuild):
         super(self.__class__, self).__init__()
         self.project_file = 'build.ninja'
         self.cmake_binary = 'cmake'
+        self.android_ndk_folder = '~/ndk'
 
     def generateProject(self,
                         ios=False,

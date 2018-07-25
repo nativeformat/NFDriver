@@ -19,7 +19,8 @@ sudo apt-get install -y --no-install-recommends apt-utils \
                                                 python-dev \
                                                 python3-dev \
                                                 gcc \
-                                                git
+                                                git \
+                                                unzip
 sudo apt-get install -y --reinstall binutils
 
 
@@ -42,7 +43,13 @@ pip install pyyaml \
 
 # Execute our python build tools
 if [ -n "$BUILD_ANDROID" ]; then
-    python ci/androidlinux.py
+    # Install Android NDK
+    wget https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip
+    unzip -q android-ndk-r17b-linux-x86_64.zip
+    mv android-ndk-r17b ~/ndk
+    chmod +x -R ~/ndk
+
+    python ci/androidlinux.py "$@"
 else
     python ci/linux.py "$@"
 fi
