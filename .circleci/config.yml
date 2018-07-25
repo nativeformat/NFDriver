@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  buildlinux:
     docker:
       - image: ubuntu:trusty
     steps:
@@ -11,3 +11,18 @@ jobs:
       - run:
           name: Build Android
           command: BUILD_ANDROID=1 sh ci/linux.sh build
+  buildmac:
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: Build OSX
+          command: sh ci/osx.sh build
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - buildlinux
+      - buildmac

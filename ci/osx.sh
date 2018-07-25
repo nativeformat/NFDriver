@@ -21,11 +21,12 @@
 # Exit on any non-zero status
 set -e
 
+# Install system dependencies
+brew install clang-format
+brew install cmake
+
 # Install virtualenv
-VIRTUALENV_LOCAL_PATH='/virtualenv-15.1.0/virtualenv.py'
-VIRTUALENV_PATH=`python tools/vulcan/bin/vulcan.py -v -f tools/virtualenv.vulcan -p virtualenv-15.1.0`
-VIRTUALENV_PATH=$VIRTUALENV_PATH$VIRTUALENV_LOCAL_PATH
-$VIRTUALENV_PATH nfdriver_env
+virtualenv nfdriver_env
 source nfdriver_env/bin/activate
 
 # Install Python Packages
