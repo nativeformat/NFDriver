@@ -8,3 +8,10 @@ jobs:
       - run:
           name: Build
           command: sh ci/linux.sh build
+  buildmac:
+    macos:
+      xcode: "9.3.0"
+    steps:
+      - run:
+          name: Build Mac
+          command: sh ci/osx.sh build
