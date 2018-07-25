@@ -38,53 +38,8 @@ class NFBuildOSX(NFBuild):
         self.project_file = os.path.join(
             self.build_directory,
             'NFDriver.xcodeproj')
-
-    def installClangFormat(self):
-        clang_format_vulcan_file = os.path.join('tools', 'clang-format.vulcan')
-        clang_format_extraction_folder = self.vulcanDownload(
-            clang_format_vulcan_file,
-            'clang-format-5.0.0')
-        self.clang_format_binary = os.path.join(
-            os.path.join(
-                os.path.join(
-                    clang_format_extraction_folder,
-                    'clang-format'),
-                'bin'),
-            'clang-format')
-
-    def installNinja(self):
-        ninja_vulcan_file = os.path.join(
-            os.path.join(
-                os.path.join(
-                    os.path.join('tools', 'buildtools'),
-                    'spotify_buildtools'),
-                'software'),
-            'ninja.vulcan')
-        ninja_extraction_folder = self.vulcanDownload(
-            ninja_vulcan_file,
-            'ninja-1.6.0')
-        self.ninja_binary = os.path.join(
-            ninja_extraction_folder,
-            'ninja')
-        if 'PATH' not in os.environ:
-            os.environ['PATH'] = ''
-        if len(os.environ['PATH']) > 0:
-            os.environ['PATH'] += os.pathsep
-        os.environ['PATH'] += ninja_extraction_folder
-
-    def installJDK(self):
-        jdk_vulcan_file = os.path.join('tools', 'jdk.vulcan')
-        jdk_extract_folder = self.vulcanDownload(
-            jdk_vulcan_file,
-            'java')
-        os.environ['JAVA_HOME'] = jdk_extract_folder
-
-    def installVulcanDependencies(self, android=False):
-        super(self.__class__, self).installVulcanDependencies(android=android)
-        self.installClangFormat()
-        self.installNinja()
-        if android:
-            self.installJDK()
+        self.clang_format_binary = 'clang-format'
+        self.cmake_binary = 'cmake'
 
     def generateProject(self,
                         ios=False,
