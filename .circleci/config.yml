@@ -11,3 +11,10 @@ jobs:
       - run:
           name: Build Android
           command: BUILD_ANDROID=1 sh ci/linux.sh build
+  buildmac:
+    macos:
+      xcode: "9.0"
+    steps:
+      - run:
+          name: Build OSX
+          command: xcodebuild -version
