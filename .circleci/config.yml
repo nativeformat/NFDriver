@@ -19,6 +19,12 @@ jobs:
       - run:
           name: Build OSX
           command: sh ci/osx.sh build
+      - run:
+          name: Build IOS 
+          command: BUILD_IOS=1 sh ci/osx.sh build
+      - run:
+          name: Build Android
+          command: BUILD_ANDROID=1 sh ci/osx.sh build
 
 workflows:
   version: 2
