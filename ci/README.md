@@ -1,8 +1,8 @@
 # Continuous Integration
-Every pull request and merge to master trigger a set of [TeamCity](https://teamcity.spotify.net/) builds. See [bridge.json](../buildconf/bridge.json) for a complete list of builds. 
+Every pull request and merge to master trigger a set of CircleCI builds. See [config.yml](../.circleci/config.yml) for a complete list of builds. 
 
 ## CI Build Scripts
-Each TeamCity build is configured to run one of the scripts in this directory, sometimes with additional command line arguments. See the individual TeamCity build configurations to view or edit the exact build pipeline commands. In general, each platform has a shell script that acts as an entry point (e.g. [osx.sh](osx.sh)) and invokes the appropriate python script (e.g. [osx.py](osx.py)). All of the platform-specific python scripts create build objects derived from [nfbuild.py](nfbuild.py). Some of the methods in the `NFBuild` python class are overriden for platform-specific functionality in the other `nfbuild*.py` files. 
+Each CircleCI build is configured to run one of the scripts in this directory, sometimes with additional command line arguments. See the individual CircleCI build configurations to view or edit the exact build pipeline commands. In general, each platform has a shell script that acts as an entry point (e.g. [osx.sh](osx.sh)) and invokes the appropriate python script (e.g. [osx.py](osx.py)). All of the platform-specific python scripts create build objects derived from [nfbuild.py](nfbuild.py). Some of the methods in the `NFBuild` python class are overriden for platform-specific functionality in the other `nfbuild*.py` files. 
 
 ## Using CI Scripts Locally
 The ci scripts can be used to download dependencies, generate build files with CMake, compile targets, and run tests in local build environments as well.
