@@ -17,4 +17,4 @@ jobs:
     steps:
       - run:
           name: Build OSX
-          command: xcodebuild -version
+          command: sh ci/osx.sh build
