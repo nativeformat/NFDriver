@@ -24,6 +24,7 @@ set -e
 # Install system dependencies
 brew install clang-format
 brew install cmake
+brew install ninja
 
 # Install virtualenv
 virtualenv nfdriver_env
@@ -39,6 +40,8 @@ if [ -n "$BUILD_IOS" ]; then
     python ci/ios.py "$@"
 else
     if [ -n "$BUILD_ANDROID" ]; then
+    	brew cask install android-ndk
+
         python ci/android.py "$@"
     else
         python ci/osx.py "$@"

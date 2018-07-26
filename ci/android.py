@@ -43,7 +43,6 @@ def main():
     targets = [library_target]
     for target in targets:
         nfbuild.buildTarget(target)
-    nfbuild.buildGradle()
 
 
 if __name__ == "__main__":

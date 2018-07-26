@@ -6,8 +6,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Build
+          name: Build Linux
           command: sh ci/linux.sh build
+  buildlinuxandroid:
+    docker:
+      - image: ubuntu:trusty
+    steps:
+      - checkout
       - run:
           name: Build Android
           command: BUILD_ANDROID=1 sh ci/linux.sh build
@@ -19,10 +24,29 @@ jobs:
       - run:
           name: Build OSX
           command: sh ci/osx.sh build
+  buildmacios:
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: Build iOS
+          command: BUILD_IOS=1 sh ci/osx.sh build
+  buildmacandroid:
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: Build Android
+          command: BUILD_ANDROID=1 sh ci/osx.sh build
 
 workflows:
   version: 2
   build:
     jobs:
       - buildlinux
+      - buildlinuxandroid
       - buildmac
+      - buildmacios
+      - buildmacandroid
