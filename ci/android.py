@@ -38,9 +38,9 @@ def main():
 
     buildOptions.addOption("makeBuildDirectoryArm64",
                            "Wipe existing build directory for ARM64 build.")
-    buildOptions.addOption("generateProjectX86", "Regenerate project for ARM64 build")
+    buildOptions.addOption("generateProjectArm64", "Regenerate project for ARM64 build")
 
-    buildOptions.addOption("buildTargetLibraryX86", "Build Target: Library (ARM64)")
+    buildOptions.addOption("buildTargetLibraryArm64", "Build Target: Library (ARM64)")
 
     buildOptions.setDefaultWorkflow("Empty workflow", [])
 
