@@ -40,6 +40,7 @@ class NFBuildOSX(NFBuild):
             'NFDriver.xcodeproj')
         self.clang_format_binary = 'clang-format'
         self.cmake_binary = 'cmake'
+        self.android_ndk_folder = '/usr/local/share/android-ndk'
 
     def generateProject(self,
                         ios=False,
