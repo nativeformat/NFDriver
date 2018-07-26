@@ -23,21 +23,49 @@
 import sys
 
 from nfbuildwindows import NFBuildWindows
+from build_options import BuildOptions
 
 
 def main():
+    buildOptions = BuildOptions()
+    buildOptions.addOption("installDependencies", "Install dependencies")
+    buildOptions.addOption("makeBuildDirectory",
+                           "Wipe existing build directory")
+    buildOptions.addOption("generateProject", "Regenerate xcode project")
+    buildOptions.addOption("buildTargetCLI",
+                           "Build Target: CLI")
+    buildOptions.addOption("buildTargetLibrary", "Build Target: Library")
+
+    buildOptions.setDefaultWorkflow("Empty workflow", [])
+
+    buildOptions.addWorkflow("build", "Production Build", [
+        'installDependencies',
+        'makeBuildDirectory',
+        'generateProject',
+        'buildTargetCLI',
+        'buildTargetLibrary'
+    ])
+
+    options = buildOptions.parseArgs()
+    buildOptions.verbosePrintBuildOptions(options)
+
     library_target = 'NFDriver'
-    cli_target = 'NFDriverCLI'
-    nfbuild = NFBuildWindows()
-    nfbuild.build_print("Installing Dependencies")
-    nfbuild.installDependencies()
-    # Make our main build artifacts
-    nfbuild.build_print("C++ Build Start (x86)")
-    nfbuild.makeBuildDirectory()
-    nfbuild.generateProject()
-    targets = [library_target, cli_target]
-    for target in targets:
-        nfbuild.buildTarget(target)
+    nfbuild = NFBuildOSX()
+
+    if buildOptions.checkOption(options, 'installDependencies'):
+        nfbuild.installDependencies()
+
+    if buildOptions.checkOption(options, 'makeBuildDirectory'):
+        nfbuild.makeBuildDirectory()
+
+    if buildOptions.checkOption(options, 'generateProject'):
+        nfbuild.generateProject(ios=True)
+
+    if buildOptions.checkOption(options, 'buildTargetLibrary'):
+        nfbuild.buildTarget(library_target)
+
+    if buildOptions.checkOption(options, 'buildTargetCLI'):
+        nfbuild.buildTarget(cli_target)
 
 
 if __name__ == "__main__":
