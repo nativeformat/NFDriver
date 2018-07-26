@@ -13,6 +13,9 @@ A cross platform C++ audio driver with low latency.
 - [x] 🤖 Android NDK r17+
 - [x] 🖥️ Microsoft UWP
 
+## Raison D'être :thought_balloon:
+During the development of innovative new audio experiences, we required a driver that would reliably work on a number of different platforms for our experimentation purposes. We noticed that at the time of development no such open source software existed (that managed to support all the platforms we were looking for), so we decided to create a new one. Given that the common language we could use across our experimentation platforms was C++ we decided on that as the language of choice for our interface. It is also worth noting that this wasn't just designed for front end use cases, and as such has the ability to write out WAV files to disk at above real time speeds to support backend rendering use cases.
+
 ## Architecture :triangular_ruler:
 `NFDriver` is designed as a common C++ interface to write information to different systems sound drivers in a low latency. The API simply allows you to create a driver that will then call the callbacks fed into it every time a new block of audio data is requested. It uses very basic C functions in order to reduce the amount of latency when interfacing to it, and to prevent unwanted locks in some implementations of the C++ 11 STL. It always has a fixed block size of 1024 samples it will ask for at any one time. It also has the ability to report errors, stutters, and give callbacks before and after the rendering of a block.
 
