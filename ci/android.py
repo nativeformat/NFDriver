@@ -54,6 +54,21 @@ def main():
         'buildTargetLibraryArm64'
     ])
 
+    buildOptions.addWorkflow("buildX86", "Production Build (X86)", [
+        'installDependencies',
+        'makeBuildDirectoryX86',
+        'generateProjectX86',
+        'buildTargetLibraryX86'
+    ])
+
+    buildOptions.addWorkflow("buildArm64", "Production Build (ARM64)", [
+        'installDependencies',
+        'makeBuildDirectoryArm64',
+        'generateProjectArm64',
+        'buildTargetLibraryArm64'
+    ])
+
+
     options = buildOptions.parseArgs()
     buildOptions.verbosePrintBuildOptions(options)
 
