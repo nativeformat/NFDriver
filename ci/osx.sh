@@ -41,6 +41,9 @@ if [ -n "$BUILD_IOS" ]; then
 else
     if [ -n "$BUILD_ANDROID" ]; then
     	brew cask install android-ndk
+    	brew cask install android-sdk
+    	export ANDROID_HOME='/usr/local/Caskroom/android-sdk'
+    	yes | /usr/local/Caskroom/android-sdk/4333796/tools/bin/sdkmanager --licenses
 
         python ci/android.py "$@"
     else
