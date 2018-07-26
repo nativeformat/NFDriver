@@ -24,6 +24,7 @@ set -e
 # Install system dependencies
 brew install clang-format
 brew install cmake
+brew install ninja
 
 # Install virtualenv
 virtualenv nfdriver_env
