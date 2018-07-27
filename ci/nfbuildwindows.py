@@ -68,7 +68,9 @@ class NFBuildWindows(NFBuild):
             rc_exe = 'rc.exe'
             link_exe = 'link.exe'
             cmake_call.extend([
-                'Visual Studio 15 2017 Win64'])
+                'Visual Studio 15 2017 Win64',
+                '-DCMAKE_SYSTEM_NAME=WindowsStore',
+                '-DCMAKE_SYSTEM_VERSION=10.0'])
         cmake_result = subprocess.call(cmake_call, cwd=self.build_directory)
         if cmake_result != 0:
             sys.exit(cmake_result)

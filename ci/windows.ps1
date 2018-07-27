@@ -27,6 +27,9 @@ Write-Host $build
 
 try
 {
+	# Upgrade pip or else the CI will complain
+	c:\python27\python.exe -m pip install --upgrade pip
+
 	# Start virtualenv
 	pip install virtualenv
 	virtualenv nfdriver_env
@@ -34,10 +37,10 @@ try
 	& ./nfdriver_env/Scripts/activate.bat
 
 	# Install Python Packages
-	& nfdriver_env/Scripts/pip.exe install urllib3
-	& nfdriver_env/Scripts/pip.exe install pyyaml
-	& nfdriver_env/Scripts/pip.exe install flake8
-	& nfdriver_env/Scripts/pip.exe install cmakelint
+	& nfdriver_env/Scripts/pip.exe install urllib3 `
+										pyyaml `
+										flake8 `
+										cmakelint
 
 	if($build -eq "android"){
 		& nfdriver_env/Scripts/python.exe ci/androidwindows.py
