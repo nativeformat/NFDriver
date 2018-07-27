@@ -31,7 +31,7 @@ def main():
     buildOptions.addOption("installDependencies", "Install dependencies")
     buildOptions.addOption("makeBuildDirectory",
                            "Wipe existing build directory")
-    buildOptions.addOption("generateProject", "Regenerate xcode project")
+    buildOptions.addOption("generateProject", "Regenerate project")
     buildOptions.addOption("buildTargetCLI",
                            "Build Target: CLI")
     buildOptions.addOption("buildTargetLibrary", "Build Target: Library")
@@ -50,7 +50,7 @@ def main():
     buildOptions.verbosePrintBuildOptions(options)
 
     library_target = 'NFDriver'
-    nfbuild = NFBuildOSX()
+    nfbuild = NFBuildWindows()
 
     if buildOptions.checkOption(options, 'installDependencies'):
         nfbuild.installDependencies()

@@ -25,18 +25,11 @@ param (
 Write-Host "NFDriver build process starting..."
 Write-Host $build
 
-$ErrorActionPreference = "Stop"
-
 try
 {
-	# Get python version
-	$python_version = python --version
-	Write-Host $python_version
-
 	# Start virtualenv
-	$virtualenv_vulcan_output = python tools/vulcan/bin/vulcan.py -v -f tools/virtualenv.vulcan -p virtualenv-15.1.0
-	$virtualenv_bin = Join-Path $virtualenv_vulcan_output /virtualenv-15.1.0/virtualenv.py
-	python $virtualenv_bin nfdriver_env
+	pip install virtualenv
+	virtualenv nfdriver_env
 
 	& ./nfdriver_env/Scripts/activate.bat
 
@@ -49,7 +42,7 @@ try
 	if($build -eq "android"){
 		& nfdriver_env/Scripts/python.exe ci/androidwindows.py
 	} else {
-		& nfdriver_env/Scripts/python.exe ci/windows.py
+		& nfdriver_env/Scripts/python.exe ci/windows.py build
 	}
 
 	if($LASTEXITCODE -ne 0){
