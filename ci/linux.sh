@@ -22,6 +22,7 @@
 set -e
 pwd
 
+
 # Install system dependencies
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils \
@@ -36,9 +37,17 @@ sudo apt-get install -y --no-install-recommends apt-utils \
                                                 libyaml-dev \
                                                 python-dev \
                                                 python3-dev \
-                                                gcc \
                                                 git \
-                                                unzip
+                                                unzip \
+                                                software-properties-common \
+                                                python-software-properties
+
+# Extra repo for gcc-4.9 so we don't have to use 4.8
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends gcc-4.9 \
+                                                g++-4.9 
+
 sudo apt-get install -y --reinstall binutils
 
 
@@ -46,9 +55,6 @@ sudo apt-get install -y --reinstall binutils
 wget https://cmake.org/files/v3.6/cmake-3.6.3-Linux-x86_64.sh
 chmod +x cmake-3.6.3-Linux-x86_64.sh
 sudo sh cmake-3.6.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
-
-export CC=clang-3.9
-export CXX=clang++-3.9
 
 # Install virtualenv
 virtualenv nfdriver_env
