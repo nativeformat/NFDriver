@@ -36,7 +36,6 @@ def main():
     generated_header = open(generated_header_filename, 'w')
     generated_header.write('// This is a generated header from generate-version.py\n')
     cwd = os.getcwd()
-    print 'PYTHON CWD: ' + cwd
     git_count = subprocess.check_output(['git', 'rev-list', '--count', 'HEAD'], cwd = cwd)
     git_describe = subprocess.check_output(['git', 'describe', '--always'], cwd = cwd)
     generated_header.write('#define NFDRIVER_VERSION "' + git_count.strip() + '-' + git_describe.strip() + '"\n')

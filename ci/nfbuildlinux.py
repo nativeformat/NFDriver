@@ -44,7 +44,8 @@ class NFBuildLinux(NFBuild):
     def generateProject(self,
                         ios=False,
                         android=False,
-                        android_arm=False):
+                        android_arm=False,
+                        gcc=False):
         cmake_call = [
             self.cmake_binary,
             '..',
@@ -62,11 +63,16 @@ class NFBuildLinux(NFBuild):
                 '-DANDROID_ABI=' + android_abi,
                 '-DANDROID_NATIVE_API_LEVEL=21',
                 '-DANDROID_TOOLCHAIN_NAME=' + android_toolchain_name])
+        if gcc:
+            cmake_call.extend(['-DLLVM_STDLIB=0'])
+        else:
+            cmake_call.extend(['-DLLVM_STDLIB=1'])
+
         cmake_result = subprocess.call(cmake_call, cwd=self.build_directory)
         if cmake_result != 0:
             sys.exit(cmake_result)
 
-    def buildTarget(self, target, sdk='linux', arch='x86_64'):
+    def buildTarget(self, target, sdk='linux', arch='x87_64'):
         result = subprocess.call([
             'ninja',
             '-C',

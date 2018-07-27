@@ -20,6 +20,7 @@
  * under the License.
 '''
 
+import os
 import sys
 
 from nfbuildlinux import NFBuildLinux
@@ -40,6 +41,8 @@ def main():
     buildOptions.addOption("buildTargetCLI", "Build Target: CLI")
     buildOptions.addOption("buildTargetLibrary", "Build Target: Library")
     buildOptions.addOption("packageArtifacts", "Package the binary artifacts")
+    buildOptions.addOption("gnuToolchain", "Build with gcc and libstdc++")
+    buildOptions.addOption("llvmToolchain", "Build with clang and libc++")
 
     buildOptions.setDefaultWorkflow("Empty workflow", [])
 
@@ -49,7 +52,19 @@ def main():
         'lintCppWithInlineChange'
     ])
 
-    buildOptions.addWorkflow("build", "Production Build", [
+    buildOptions.addWorkflow("clang_build", "Production build with clang", [
+        'llvmToolchain',
+        'installDependencies',
+        'lintCmake',
+        'makeBuildDirectory',
+        'generateProject',
+        'buildTargetLibrary',
+        'buildTargetCLI',
+        'packageArtifacts'
+    ])
+
+    buildOptions.addWorkflow("gcc_build", "Production build with gcc", [
+        'gnuToolchain',
         'installDependencies',
         'lintCmake',
         'makeBuildDirectory',
@@ -66,7 +81,6 @@ def main():
     cli_target = 'NFDriverCLI'
     nfbuild = NFBuildLinux()
 
-
     if buildOptions.checkOption(options, 'installDependencies'):
         nfbuild.installDependencies()
 
@@ -80,7 +94,16 @@ def main():
         nfbuild.makeBuildDirectory()
 
     if buildOptions.checkOption(options, 'generateProject'):
-        nfbuild.generateProject()
+        if buildOptions.checkOption(options, 'gnuToolchain'):
+            os.environ['CC'] = 'gcc-4.9'
+            os.environ['CXX'] = 'g++-4.9'
+            nfbuild.generateProject(gcc=True)
+        elif buildOptions.checkOption(options, 'llvmToolchain'):
+            os.environ['CC'] = 'clang-3.9'
+            os.environ['CXX'] = 'clang++-3.9'
+            nfbuild.generateProject(gcc=False)
+        else:
+            nfbuild.generateProject()
 
     if buildOptions.checkOption(options, 'buildTargetCLI'):
         nfbuild.buildTarget(cli_target)

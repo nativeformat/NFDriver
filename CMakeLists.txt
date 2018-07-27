@@ -23,6 +23,10 @@ project(NFDriver)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(LLVM_STDLIB)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 if(IOS)
   set(CMAKE_OSX_SYSROOT iphoneos)
   set(CMAKE_OSX_ARCHITECTURES $(ARCHS_STANDARD))
