@@ -8,6 +8,9 @@ jobs:
       - run:
           name: Build Linux
           command: sh ci/linux.sh build
+      - store_artifacts:
+          path: build/output/libNFDriver.zip
+          destination: libNFDriver.zip
   buildlinuxandroid:
     docker:
       - image: ubuntu:trusty
