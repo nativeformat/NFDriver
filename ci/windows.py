@@ -51,7 +51,6 @@ def main():
 
     library_target = 'NFDriver'
     cli_target = 'NFDriver.exe'
-
     nfbuild = NFBuildWindows()
 
     if buildOptions.checkOption(options, 'installDependencies'):
