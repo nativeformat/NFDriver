@@ -121,3 +121,27 @@ class NFBuild(object):
         exit_code = subprocess.call(['./gradlew', 'assemble'])
         if exit_code != 0:
             sys.exit(exit_code)
+
+    def packageArtifacts(self):
+        assert True, "packageArtifacts should be overridden by subclass"
+
+    def make_archive(self, source, destination):
+        base = os.path.basename(destination)
+        name = base.split('.')[0]
+        format = base.split('.')[1]
+        archive_from = os.path.dirname(source)
+        archive_to = os.path.basename(source.strip(os.sep))
+        print(source, destination, archive_from, archive_to)
+        shutil.make_archive(name, format, archive_from, archive_to)
+        shutil.move('%s.%s'%(name,format), destination)
+
+    def find_file(self, directory, file_name, multiple_files=False):
+        matches = []
+        for root, dirnames, filenames in os.walk(directory):
+            for filename in fnmatch.filter(filenames, file_name):
+                matches.append(os.path.join(root, filename))
+                if not multiple_files:
+                    break
+            if not multiple_files and len(matches) > 0:
+                break
+        return matches

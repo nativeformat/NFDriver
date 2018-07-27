@@ -31,7 +31,7 @@ def main():
         output_dir = sys.argv[1]
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    print 'Generating nfdecoder_generated_header.h in ' + output_dir
+    print 'Generating nfdriver_generated_header.h in ' + output_dir
     generated_header_filename = os.path.join(output_dir, 'nfdriver_generated_header.h')
     generated_header = open(generated_header_filename, 'w')
     generated_header.write('// This is a generated header from generate-version.py\n')
