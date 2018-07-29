@@ -29,7 +29,7 @@ jobs:
       - checkout
       - run:
           name: Build Android
-          command: BUILD_ANDROID=1 sh ci/linux.sh clang_build
+          command: BUILD_ANDROID=1 sh ci/linux.sh build
   buildmac:
     macos:
       xcode: "9.0"
