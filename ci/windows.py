@@ -50,7 +50,7 @@ def main():
     buildOptions.verbosePrintBuildOptions(options)
 
     library_target = 'NFDriver'
-    cli_target = 'NFDriver.exe'
+    cli_target = 'NFDriverCLI'
     nfbuild = NFBuildWindows()
 
     if buildOptions.checkOption(options, 'installDependencies'):
