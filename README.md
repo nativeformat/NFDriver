@@ -1,6 +1,7 @@
 <img alt="NFDriver" src="NFDriver.png" width="100%" max-width="888">
 
 [![CircleCI](https://circleci.com/gh/spotify/NFDriver/tree/master.svg?style=svg)](https://circleci.com/gh/spotify/NFDriver/tree/master)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/m2bn47mr3u26k6jq?svg=true)](https://ci.appveyor.com/project/8W9aG/nfdriver)
 [![License](https://img.shields.io/github/license/spotify/NFDriver.svg)](LICENSE)
 [![Spotify FOSS Slack](https://slackin.spotify.com/badge.svg)](https://slackin.spotify.com)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/spotify/nfdriver)](http://clayallsopp.github.io/readme-score?url=https://github.com/spotify/nfdriver)
