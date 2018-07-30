@@ -18,9 +18,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include "NFDriverAdapter.h"
 #include <alsa/asoundlib.h>
 #include <pthread.h>
+#include "NFDriverAdapter.h"
 
 using namespace nativeformat::driver;
 
@@ -31,7 +31,7 @@ typedef struct nativeformat::driver::NFSoundCardDriverInternals {
   NF_DID_RENDER_CALLBACK didRenderCallback;
   NF_STUTTER_CALLBACK stutterCallback;
   NF_ERROR_CALLBACK errorCallback;
-  int isPlaying, threadsRunning; // Integers because of atomics.
+  int isPlaying, threadsRunning;  // Integers because of atomics.
 } NFSoundCardDriverInternals;
 
 typedef struct alsaPCMContext {
@@ -43,22 +43,20 @@ typedef struct alsaPCMContext {
 } alsaPCMContext;
 
 // Called when the hardware audio driver has problems with I/O.
-static bool underrunRecovery(snd_pcm_t *handle, int error, void *clientdata,
+static bool underrunRecovery(snd_pcm_t *handle,
+                             int error,
+                             void *clientdata,
                              NF_ERROR_CALLBACK errorCallback) {
   if (error == -EPIPE) {
     error = snd_pcm_prepare(handle);
-    if (error < 0)
-      errorCallback(clientdata, "underrun recovery snd_pcm_prepare error 1", 0);
+    if (error < 0) errorCallback(clientdata, "underrun recovery snd_pcm_prepare error 1", 0);
     return true;
   } else if (error == -ESTRPIPE) {
-    while ((error = snd_pcm_resume(handle)) == -EAGAIN)
-      sleep(1);
+    while ((error = snd_pcm_resume(handle)) == -EAGAIN) sleep(1);
 
     if (error < 0) {
       error = snd_pcm_prepare(handle);
-      if (error < 0)
-        errorCallback(clientdata, "underrun recovery snd_pcm_prepare error 2",
-                      0);
+      if (error < 0) errorCallback(clientdata, "underrun recovery snd_pcm_prepare error 2", 0);
     }
     return true;
   }
@@ -67,24 +65,24 @@ static bool underrunRecovery(snd_pcm_t *handle, int error, void *clientdata,
 
 // Waiting for a significant event, such as enough audio consumed by the
 // hardware audio driver.
-static bool waitForPoll(alsaPCMContext *context, bool *init, void *clientdata,
+static bool waitForPoll(alsaPCMContext *context,
+                        bool *init,
+                        void *clientdata,
                         NF_ERROR_CALLBACK errorCallback) {
   unsigned short revents;
   while (1) {
     poll(context->pollDescriptors, context->pollDescriptorsCount, -1);
-    snd_pcm_poll_descriptors_revents(context->handle, context->pollDescriptors,
-                                     context->pollDescriptorsCount, &revents);
+    snd_pcm_poll_descriptors_revents(
+        context->handle, context->pollDescriptors, context->pollDescriptorsCount, &revents);
 
-    if (revents & POLLOUT)
-      return true;
+    if (revents & POLLOUT) return true;
 
     if (revents & POLLERR) {
       snd_pcm_state_t state = snd_pcm_state(context->handle);
 
       if ((state == SND_PCM_STATE_XRUN) || (state == SND_PCM_STATE_SUSPENDED)) {
         int error = (state == SND_PCM_STATE_XRUN) ? -EPIPE : -ESTRPIPE;
-        if (!underrunRecovery(context->handle, error, clientdata,
-                              errorCallback)) {
+        if (!underrunRecovery(context->handle, error, clientdata, errorCallback)) {
           errorCallback(clientdata, "wait for poll write error", 0);
           return false;
         }
@@ -98,8 +96,7 @@ static bool waitForPoll(alsaPCMContext *context, bool *init, void *clientdata,
   return true;
 }
 
-static bool setupALSA(alsaPCMContext *context, void *clientdata,
-                      NF_ERROR_CALLBACK errorCallback) {
+static bool setupALSA(alsaPCMContext *context, void *clientdata, NF_ERROR_CALLBACK errorCallback) {
   memset(context, 0, sizeof(alsaPCMContext));
 
   snd_pcm_t *handle;
@@ -127,8 +124,7 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
   }
   // Interleaved audio works with all hardware these days. USB class audio is
   // interleaved too.
-  error = snd_pcm_hw_params_set_access(handle, hwParams,
-                                       SND_PCM_ACCESS_RW_INTERLEAVED);
+  error = snd_pcm_hw_params_set_access(handle, hwParams, SND_PCM_ACCESS_RW_INTERLEAVED);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_hw_params_set_access error ", 0);
     snd_pcm_close(handle);
@@ -136,8 +132,7 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
   }
   // Let ALSA perform sample format conversion of the hardware doesn't support
   // floating point audio out-of-the-box. This involves no additional latency.
-  error =
-      snd_pcm_hw_params_set_format(handle, hwParams, SND_PCM_FORMAT_FLOAT_LE);
+  error = snd_pcm_hw_params_set_format(handle, hwParams, SND_PCM_FORMAT_FLOAT_LE);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_hw_params_set_format error ", 0);
     snd_pcm_close(handle);
@@ -150,19 +145,16 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
     snd_pcm_close(handle);
     return false;
   }
-  if (context->numChannels >
-      2) { // The audio device supports more than 2 channels.
+  if (context->numChannels > 2) {  // The audio device supports more than 2 channels.
     error = snd_pcm_hw_params_get_channels_min(hwParams, &context->numChannels);
     if (error < 0) {
       errorCallback(clientdata, "snd_pcm_hw_params_get_channels_min error", 0);
       snd_pcm_close(handle);
       return false;
     }
-    if (context->numChannels <= 2)
-      context->numChannels = 2;
+    if (context->numChannels <= 2) context->numChannels = 2;
   }
-  error =
-      snd_pcm_hw_params_set_channels(handle, hwParams, context->numChannels);
+  error = snd_pcm_hw_params_set_channels(handle, hwParams, context->numChannels);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_hw_params_set_channels error ", 0);
     snd_pcm_close(handle);
@@ -170,8 +162,7 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
   }
   // Set the hardware samplerate.
   context->outputSamplerate = NF_DRIVER_SAMPLERATE;
-  error = snd_pcm_hw_params_set_rate_near(handle, hwParams,
-                                          &context->outputSamplerate, 0);
+  error = snd_pcm_hw_params_set_rate_near(handle, hwParams, &context->outputSamplerate, 0);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_hw_params_set_rate_near error ", 0);
     snd_pcm_close(handle);
@@ -196,14 +187,11 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
   context->periodSizeFrames =
       NFDriverAdapter::getOptimalNumberOfFrames((int)context->outputSamplerate);
   div_t d = div((int)bufferSizeFrames, (int)context->periodSizeFrames);
-  if (d.quot < 2)
-    d.quot = 2;
+  if (d.quot < 2) d.quot = 2;
   bufferSizeFrames = context->periodSizeFrames * d.quot;
-  error = snd_pcm_hw_params_set_buffer_size_near(handle, hwParams,
-                                                 &bufferSizeFrames);
+  error = snd_pcm_hw_params_set_buffer_size_near(handle, hwParams, &bufferSizeFrames);
   if (error < 0) {
-    errorCallback(clientdata, "snd_pcm_hw_params_set_buffer_size_near error",
-                  0);
+    errorCallback(clientdata, "snd_pcm_hw_params_set_buffer_size_near error", 0);
     snd_pcm_close(handle);
     return false;
   }
@@ -214,11 +202,9 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
     return false;
   }
   snd_pcm_uframes_t frames = context->periodSizeFrames;
-  error =
-      snd_pcm_hw_params_set_period_size_near(handle, hwParams, &frames, NULL);
+  error = snd_pcm_hw_params_set_period_size_near(handle, hwParams, &frames, NULL);
   if (error < 0) {
-    errorCallback(clientdata, "snd_pcm_hw_params_set_period_size_near error",
-                  0);
+    errorCallback(clientdata, "snd_pcm_hw_params_set_period_size_near error", 0);
     snd_pcm_close(handle);
     return false;
   }
@@ -249,17 +235,13 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
     return false;
   }
   error = snd_pcm_sw_params_set_start_threshold(
-      handle, swParams,
-      (bufferSizeFrames / context->periodSizeFrames) *
-          context->periodSizeFrames);
+      handle, swParams, (bufferSizeFrames / context->periodSizeFrames) * context->periodSizeFrames);
   if (error < 0) {
-    errorCallback(clientdata, "snd_pcm_sw_params_set_start_threshold error ",
-                  0);
+    errorCallback(clientdata, "snd_pcm_sw_params_set_start_threshold error ", 0);
     snd_pcm_close(handle);
     return false;
   }
-  error = snd_pcm_sw_params_set_avail_min(handle, swParams,
-                                          context->periodSizeFrames);
+  error = snd_pcm_sw_params_set_avail_min(handle, swParams, context->periodSizeFrames);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_sw_params_set_avail_min error ", 0);
     snd_pcm_close(handle);
@@ -287,8 +269,7 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
     snd_pcm_close(handle);
     return false;
   }
-  error = snd_pcm_poll_descriptors(handle, pollDescriptors,
-                                   context->pollDescriptorsCount);
+  error = snd_pcm_poll_descriptors(handle, pollDescriptors, context->pollDescriptorsCount);
   if (error < 0) {
     errorCallback(clientdata, "snd_pcm_poll_descriptors error ", 0);
     snd_pcm_close(handle);
@@ -298,8 +279,7 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
 
   // Allocate the buffer.
   // Why 8 for each sample? Because of exotic 64-bit audio formats.
-  context->buffer =
-      (float *)malloc(context->periodSizeFrames * context->numChannels * 8);
+  context->buffer = (float *)malloc(context->periodSizeFrames * context->numChannels * 8);
   if (!context->buffer) {
     errorCallback(clientdata, "out of memory", 0);
     snd_pcm_close(handle);
@@ -309,10 +289,13 @@ static bool setupALSA(alsaPCMContext *context, void *clientdata,
 
   context->handle = handle;
   context->pollDescriptors = pollDescriptors;
-  printf("  Buffer size: %i frames\n  Period size: %i frames\n  Sample rate: "
-         "%i Hz\n  Number of channels: %i\n",
-         (int)bufferSizeFrames, context->periodSizeFrames,
-         context->outputSamplerate, context->numChannels);
+  printf(
+      "  Buffer size: %i frames\n  Period size: %i frames\n  Sample rate: "
+      "%i Hz\n  Number of channels: %i\n",
+      (int)bufferSizeFrames,
+      context->periodSizeFrames,
+      context->outputSamplerate,
+      context->numChannels);
   return true;
 }
 
@@ -321,18 +304,17 @@ static void setAudioThreadPriority() {
   pthread_t thread = pthread_self();
   struct sched_param schedparam;
   schedparam.sched_priority = sched_get_priority_max(SCHED_FIFO);
-  schedparam.sched_priority -=
-      (schedparam.sched_priority / 10); // 90% of the maximum priority.
+  schedparam.sched_priority -= (schedparam.sched_priority / 10);  // 90% of the maximum priority.
   pthread_setschedparam(thread, SCHED_FIFO, &schedparam);
 
   int actualPolicy = 0;
   pthread_getschedparam(thread, &actualPolicy, &schedparam);
   if (actualPolicy == SCHED_FIFO)
-    printf("Running with SCHED_FIFO and priority level %i.\n",
-           schedparam.sched_priority);
+    printf("Running with SCHED_FIFO and priority level %i.\n", schedparam.sched_priority);
   else {
-    printf("Running with SCHED_OTHER priority. Audio dropouts may happen.\nRun "
-           "with CAP_SYS_NICE permission for proper scheduling.\n");
+    printf(
+        "Running with SCHED_OTHER priority. Audio dropouts may happen.\nRun "
+        "with CAP_SYS_NICE permission for proper scheduling.\n");
     schedparam.sched_priority = sched_get_priority_max(SCHED_OTHER);
     pthread_setschedparam(thread, SCHED_OTHER, &schedparam);
   }
@@ -342,15 +324,16 @@ static void setAudioThreadPriority() {
 static void *playbackThread(void *param) {
   NFSoundCardDriverInternals *internals = (NFSoundCardDriverInternals *)param;
   while (__sync_fetch_and_add(&internals->threadsRunning, 0) > 1)
-    usleep(
-        10000); // Wait until another audio rendering thread is still running.
+    usleep(10000);  // Wait until another audio rendering thread is still running.
   alsaPCMContext context;
 
   if (setupALSA(&context, internals->clientdata, internals->errorCallback)) {
-    NFDriverAdapter *adapter = new NFDriverAdapter(
-        internals->clientdata, internals->stutterCallback,
-        internals->renderCallback, internals->errorCallback,
-        internals->willRenderCallback, internals->didRenderCallback);
+    NFDriverAdapter *adapter = new NFDriverAdapter(internals->clientdata,
+                                                   internals->stutterCallback,
+                                                   internals->renderCallback,
+                                                   internals->errorCallback,
+                                                   internals->willRenderCallback,
+                                                   internals->didRenderCallback);
     adapter->setSamplerate((int)context.outputSamplerate);
     setAudioThreadPriority();
 
@@ -358,15 +341,12 @@ static void *playbackThread(void *param) {
     // "Infinite loop".
     while (internals->isPlaying) {
       // Wait until we can push more data.
-      if (!init && !waitForPoll(&context, &init, internals->clientdata,
-                                internals->errorCallback))
+      if (!init && !waitForPoll(&context, &init, internals->clientdata, internals->errorCallback))
         break;
 
       // Get the next buffer from the audio provider (the player).
-      if (!adapter->getFrames(context.buffer, NULL, context.periodSizeFrames,
-                              context.numChannels))
-        memset(context.buffer, 0,
-               context.periodSizeFrames * context.numChannels * sizeof(float));
+      if (!adapter->getFrames(context.buffer, NULL, context.periodSizeFrames, context.numChannels))
+        memset(context.buffer, 0, context.periodSizeFrames * context.numChannels * sizeof(float));
 
       // Write the data.
       float *buffer = context.buffer;
@@ -377,12 +357,10 @@ static void *playbackThread(void *param) {
         framesWritten = snd_pcm_writei(context.handle, buffer, framesLeft);
 
         if (framesWritten < 0) {
-          if (!underrunRecovery(context.handle, framesWritten,
-                                internals->clientdata,
-                                internals->errorCallback)) {
-            internals->errorCallback(internals->clientdata,
-                                     "underrun recovery write error",
-                                     framesWritten);
+          if (!underrunRecovery(
+                  context.handle, framesWritten, internals->clientdata, internals->errorCallback)) {
+            internals->errorCallback(
+                internals->clientdata, "underrun recovery write error", framesWritten);
             __sync_fetch_and_and(&internals->isPlaying, 0);
             break;
           }
@@ -391,15 +369,12 @@ static void *playbackThread(void *param) {
           break;
         }
 
-        if (snd_pcm_state(context.handle) == SND_PCM_STATE_RUNNING)
-          init = false;
+        if (snd_pcm_state(context.handle) == SND_PCM_STATE_RUNNING) init = false;
         buffer += framesWritten * context.numChannels;
         framesLeft -= framesWritten;
-        if (framesLeft <= 0)
-          break;
+        if (framesLeft <= 0) break;
 
-        if (!waitForPoll(&context, &init, internals->clientdata,
-                         internals->errorCallback)) {
+        if (!waitForPoll(&context, &init, internals->clientdata, internals->errorCallback)) {
           __sync_fetch_and_and(&internals->isPlaying, 0);
           break;
         }
@@ -419,11 +394,12 @@ static void *playbackThread(void *param) {
   return NULL;
 }
 
-NFSoundCardDriver::NFSoundCardDriver(
-    void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
-    NF_RENDER_CALLBACK render_callback, NF_ERROR_CALLBACK error_callback,
-    NF_WILL_RENDER_CALLBACK will_render_callback,
-    NF_DID_RENDER_CALLBACK did_render_callback) {
+NFSoundCardDriver::NFSoundCardDriver(void *clientdata,
+                                     NF_STUTTER_CALLBACK stutter_callback,
+                                     NF_RENDER_CALLBACK render_callback,
+                                     NF_ERROR_CALLBACK error_callback,
+                                     NF_WILL_RENDER_CALLBACK will_render_callback,
+                                     NF_DID_RENDER_CALLBACK did_render_callback) {
   internals = new NFSoundCardDriverInternals;
   internals->clientdata = clientdata;
   internals->isPlaying = internals->threadsRunning = 0;
@@ -435,11 +411,10 @@ NFSoundCardDriver::NFSoundCardDriver(
 }
 
 NFSoundCardDriver::~NFSoundCardDriver() {
-  __sync_fetch_and_and(
-      &internals->isPlaying,
-      0); // Notify the audio rendering threads to stop with isPlaying to 0.
+  __sync_fetch_and_and(&internals->isPlaying,
+                       0);  // Notify the audio rendering threads to stop with isPlaying to 0.
   while (__sync_fetch_and_add(&internals->threadsRunning, 0) > 0)
-    usleep(10000); // Wait until any audio rendering thread is running.
+    usleep(10000);  // Wait until any audio rendering thread is running.
   delete internals;
 }
 
@@ -449,15 +424,14 @@ bool NFSoundCardDriver::isPlaying() const {
 
 void NFSoundCardDriver::setPlaying(bool playing) {
   if (playing) {
-    if (__sync_bool_compare_and_swap(
-            &internals->isPlaying, 0,
-            1)) { // If we actually flip isPlaying from 0 to 1.
+    if (__sync_bool_compare_and_swap(&internals->isPlaying,
+                                     0,
+                                     1)) {  // If we actually flip isPlaying from 0 to 1.
       __sync_fetch_and_add(&internals->threadsRunning, 1);
       pthread_t thread;
       pthread_create(&thread, NULL, playbackThread, internals);
     }
   } else
-    __sync_fetch_and_and(
-        &internals->isPlaying,
-        0); // Notify the audio rendering threads to stop with isPlaying to 0.
+    __sync_fetch_and_and(&internals->isPlaying,
+                         0);  // Notify the audio rendering threads to stop with isPlaying to 0.
 }

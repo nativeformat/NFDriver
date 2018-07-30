@@ -33,48 +33,51 @@ struct NFDriverAdapterInternals;
 // buffering, resampling and deinterleaving automatically as needed.
 
 class NFDriverAdapter {
-public:
-  NFDriverAdapter(void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
+ public:
+  NFDriverAdapter(void *clientdata,
+                  NF_STUTTER_CALLBACK stutter_callback,
                   NF_RENDER_CALLBACK render_callback,
                   NF_ERROR_CALLBACK error_callback,
                   NF_WILL_RENDER_CALLBACK will_render_callback,
                   NF_DID_RENDER_CALLBACK did_render_callback);
   ~NFDriverAdapter();
 
-  static int getOptimalNumberOfFrames(int samplerate); // Returns with the ideal
-                                                       // number of frames for
-                                                       // the specific
-                                                       // samplerate for minimal
-                                                       // buffering and latency.
+  static int getOptimalNumberOfFrames(int samplerate);  // Returns with the ideal
+                                                        // number of frames for
+                                                        // the specific
+                                                        // samplerate for minimal
+                                                        // buffering and latency.
 
-  void
-  setSamplerate(int samplerate); // Thread-safe, can be called in any thread.
-  bool getFrames(float *outputLeft, float *outputRight, int numFrames,
-                 int numChannels); // Should be called in the audio
-                                   // processing/rendering callback of the audio
-                                   // I/O.
+  void setSamplerate(int samplerate);  // Thread-safe, can be called in any thread.
+  bool getFrames(float *outputLeft,
+                 float *outputRight,
+                 int numFrames,
+                 int numChannels);  // Should be called in the audio
+                                    // processing/rendering callback of the audio
+                                    // I/O.
 
-private:
+ private:
   NFDriverAdapterInternals *internals;
 };
 
 struct NFSoundCardDriverInternals;
 
 class NFSoundCardDriver : public NFDriver {
-public:
+ public:
   bool isPlaying() const;
   void setPlaying(bool playing);
 
-  NFSoundCardDriver(void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
+  NFSoundCardDriver(void *clientdata,
+                    NF_STUTTER_CALLBACK stutter_callback,
                     NF_RENDER_CALLBACK render_callback,
                     NF_ERROR_CALLBACK error_callback,
                     NF_WILL_RENDER_CALLBACK will_render_callback,
                     NF_DID_RENDER_CALLBACK did_render_callback);
   ~NFSoundCardDriver();
 
-private:
+ private:
   NFSoundCardDriverInternals *internals;
 };
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat

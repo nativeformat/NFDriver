@@ -46,22 +46,22 @@ typedef enum { OutputTypeSoundCard, OutputTypeFile } OutputType;
 typedef void (*NF_STUTTER_CALLBACK)(void *clientdata);
 typedef void (*NF_WILL_RENDER_CALLBACK)(void *clientdata);
 typedef void (*NF_DID_RENDER_CALLBACK)(void *clientdata);
-typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames,
-                                  int numberOfFrames);
-typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage,
-                                  int errorCode);
+typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames, int numberOfFrames);
+typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, int errorCode);
 
 extern const char *version();
 
 class NFDriver {
-public:
-  virtual bool isPlaying() const = 0;        // Thread-safe.
-  virtual void setPlaying(bool playing) = 0; // Thread-safe.
+ public:
+  virtual bool isPlaying() const = 0;         // Thread-safe.
+  virtual void setPlaying(bool playing) = 0;  // Thread-safe.
   virtual ~NFDriver(){};
 
 #if __ANDROID__
   // Should be called only once per app life-cycle.
-  static void onAppLaunch(JNIEnv *env, jobject self, void *clientdata,
+  static void onAppLaunch(JNIEnv *env,
+                          jobject self,
+                          void *clientdata,
                           NF_ERROR_CALLBACK errorCallback);
 #endif
 
@@ -75,5 +75,5 @@ public:
                                   const char *output_destination = 0);
 };
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat
