@@ -42,12 +42,18 @@ class NFBuildOSX(NFBuild):
         self.cmake_binary = 'cmake'
         self.android_ndk_folder = '/usr/local/share/android-ndk'
         self.ninja_binary = 'ninja'
+        self.ios = False
+        self.android = False
+        self.android_arm = False
 
     def generateProject(self,
                         ios=False,
                         android=False,
                         android_arm=False):
         self.use_ninja = android or android_arm
+        self.ios = ios
+        self.android = android
+        self.android_arm = android_arm
         cmake_call = [
             self.cmake_binary,
             '..']
@@ -68,8 +74,8 @@ class NFBuildOSX(NFBuild):
             self.project_file = 'build.ninja'
         else:
             cmake_call.extend(['-GXcode'])
-	if ios:
-	    cmake_call.extend(['-DIOS=1'])
+        if ios:
+            cmake_call.extend(['-DIOS=1'])
         cmake_result = subprocess.call(cmake_call, cwd=self.build_directory)
         if cmake_result != 0:
             sys.exit(cmake_result)
@@ -169,3 +175,32 @@ class NFBuildOSX(NFBuild):
                     static_analyzer_check_passed = False
         if not static_analyzer_check_passed:
             sys.exit(1)
+
+    def packageArtifacts(self):
+        lib_name = 'libNFDriver.a'
+        cli_name = 'NFDriverCLI'
+        output_folder = os.path.join(self.build_directory, 'output')
+        artifacts_folder = os.path.join(output_folder, 'NFDriver')
+        shutil.copytree('include', os.path.join(artifacts_folder, 'include'))
+        source_folder = os.path.join(self.build_directory, 'source')
+        lib_matches = self.find_file(source_folder, lib_name)
+        cli_matches = self.find_file(source_folder, cli_name)
+        if not self.android:
+            lipo_command = ['lipo', '-create']
+            for lib_match in lib_matches:
+                lipo_command.append(lib_match)
+            lipo_command.extend(['-output', os.path.join(artifacts_folder, lib_name)])
+            lipo_result = subprocess.call(lipo_command)
+            if lipo_result != 0:
+                sys.exit(lipo_result)
+        else:
+            shutil.copyfile(lib_matches[0], os.path.join(artifacts_folder, lib_name))
+        if not self.ios and not self.android:
+            shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
+        output_zip = os.path.join(output_folder, 'libNFDriver.zip')
+        self.make_archive(artifacts_folder, output_zip)
+        if self.android:
+            final_zip_name = 'libNFDriver-androidx86.zip'
+            if self.android_arm:
+                final_zip_name = 'libNFDriver-androidArm64.zip'
+            shutil.copyfile(output_zip, final_zip_name)

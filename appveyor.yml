@@ -3,3 +3,7 @@ image:
 
 build_script:
 - ps: ci/windows.ps1
+
+artifacts:
+  - path: build/output/libNFDriver.zip
+    name: libNFDriver.zip
