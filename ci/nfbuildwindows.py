@@ -92,3 +92,23 @@ class NFBuildWindows(NFBuild):
                 '/t:NFDriver;' + target])
         if result != 0:
             sys.exit(result)
+
+    def packageArtifacts(self):
+        lib_name = 'NFDriver.lib'
+        cli_name = 'NFDriverCLI.exe'
+        output_folder = os.path.join(self.build_directory, 'output')
+        artifacts_folder = os.path.join(output_folder, 'NFDriver')
+        shutil.copytree('include', os.path.join(artifacts_folder, 'include'))
+        source_folder = os.path.join(self.build_directory, 'source')
+        lib_matches = self.find_file(source_folder, lib_name)
+        cli_matches = self.find_file(source_folder, cli_name)
+        shutil.copyfile(lib_matches[0], os.path.join(artifacts_folder, lib_name))
+        if not self.android:
+            shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
+        output_zip = os.path.join(output_folder, 'libNFDriver.zip')
+        self.make_archive(artifacts_folder, output_zip)
+        if self.android:
+            final_zip_name = 'libNFDriver-androidx86.zip'
+            if self.android_arm:
+                final_zip_name = 'libNFDriver-androidArm64.zip'
+            shutil.copyfile(output_zip, final_zip_name)

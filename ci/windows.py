@@ -35,7 +35,7 @@ def main():
     buildOptions.addOption("buildTargetCLI",
                            "Build Target: CLI")
     buildOptions.addOption("buildTargetLibrary", "Build Target: Library")
-
+    buildOptions.addOption("packageArtifacts", "Package the binary artifacts")
     buildOptions.setDefaultWorkflow("Empty workflow", [])
 
     buildOptions.addWorkflow("build", "Production Build", [
@@ -43,7 +43,8 @@ def main():
         'makeBuildDirectory',
         'generateProject',
         'buildTargetCLI',
-        'buildTargetLibrary'
+        'buildTargetLibrary',
+        'packageArtifacts'
     ])
 
     options = buildOptions.parseArgs()
@@ -67,6 +68,9 @@ def main():
 
     if buildOptions.checkOption(options, 'buildTargetCLI'):
         nfbuild.buildTarget(cli_target)
+
+    if buildOptions.checkOption(options, "packageArtifacts"):
+        nfbuild.packageArtifacts()
 
 
 if __name__ == "__main__":

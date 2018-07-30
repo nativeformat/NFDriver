@@ -45,6 +45,7 @@ def main():
     buildOptions.addOption("staticAnalysis", "Run Static Analysis")
 
     buildOptions.addOption("makeCLI", "Deploy CLI Binary")
+    buildOptions.addOption("packageArtifacts", "Package the artifacts produced by the build")
 
     buildOptions.setDefaultWorkflow("Empty workflow", [])
 
@@ -62,7 +63,8 @@ def main():
         'generateProject',
         'buildTargetCLI',
         'buildTargetLibrary',
-        'staticAnalysis'
+        'staticAnalysis',
+        'packageArtifacts'
     ])
 
     options = buildOptions.parseArgs()
@@ -100,6 +102,8 @@ def main():
         if buildOptions.checkOption(options, 'staticAnalysis'):
             nfbuild.staticallyAnalyse(cli_target,
                                       include_regex='source/.*')
+    if buildOptions.checkOption(options, "packageArtifacts"):
+        nfbuild.packageArtifacts()
 
 
 if __name__ == "__main__":
