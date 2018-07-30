@@ -28,11 +28,12 @@
 #import <AudioUnit/AudioUnit.h>
 #import <UIKit/UIApplication.h>
 
-using namespace nativeformat::driver;
+namespace nativeformat {
+namespace driver {
 
 static const char *mainQueueKey = "main";
 
-typedef struct nativeformat::driver::NFSoundCardDriverInternals {
+typedef struct NFSoundCardDriverInternals {
     NFDriverAdapter *adapter;
     void *clientdata;
     NF_ERROR_CALLBACK errorCallback;
@@ -434,6 +435,9 @@ void NFSoundCardDriver::setPlaying(bool playing)
 {
     _setPlaying(playing, internals);
 }
+
+}  // namespace driver
+}  // namespace nativeformat
 
 #endif  // target_os_ios
 #endif  // apple

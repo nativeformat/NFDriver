@@ -27,9 +27,10 @@
 #include <unistd.h>
 #include "NFDriverAdapter.h"
 
-using namespace nativeformat::driver;
+namespace nativeformat {
+namespace driver {
 
-typedef struct nativeformat::driver::NFSoundCardDriverInternals {
+typedef struct NFSoundCardDriverInternals {
   void *clientdata;
   NF_WILL_RENDER_CALLBACK willRenderCallback;
   NF_RENDER_CALLBACK renderCallback;
@@ -342,5 +343,8 @@ void NFSoundCardDriver::setPlaying(bool playing) {
       internals->errorCallback(internals->clientdata, "Setting SL_IID_PLAY failed.", 0);
   }
 }
+
+}  // namespace driver
+}  // namespace nativeformat
 
 #endif  // __android__

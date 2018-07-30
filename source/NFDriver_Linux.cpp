@@ -22,9 +22,10 @@
 #include <pthread.h>
 #include "NFDriverAdapter.h"
 
-using namespace nativeformat::driver;
+namespace nativeformat {
+namespace driver {
 
-typedef struct nativeformat::driver::NFSoundCardDriverInternals {
+typedef struct NFSoundCardDriverInternals {
   void *clientdata;
   NF_WILL_RENDER_CALLBACK willRenderCallback;
   NF_RENDER_CALLBACK renderCallback;
@@ -435,3 +436,6 @@ void NFSoundCardDriver::setPlaying(bool playing) {
     __sync_fetch_and_and(&internals->isPlaying,
                          0);  // Notify the audio rendering threads to stop with isPlaying to 0.
 }
+
+}  // namespace driver
+}  // namespace nativeformat
