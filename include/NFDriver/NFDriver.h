@@ -45,9 +45,9 @@ typedef enum {
 } OutputType;
 
 /*! Number of samples to process at a time */
-#define NF_DRIVER_SAMPLE_BLOCK_SIZE 1024 
+#define NF_DRIVER_SAMPLE_BLOCK_SIZE 1024
 /*! The sample rate of the blocks to be sampled. In units of samples per second */
-#define NF_DRIVER_SAMPLERATE 44100 
+#define NF_DRIVER_SAMPLERATE 44100
 /*! Number of channels to output a time. 2 means we're outputting stereo */
 #define NF_DRIVER_CHANNELS 2
 
@@ -77,18 +77,16 @@ typedef void (*NF_DID_RENDER_CALLBACK)(void *clientdata);
  * \param numberOfFrames Desired number of frames to store in frames.
  * \return Number of frames that were stored in frames.
  */
-typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames,
-                                  int numberOfFrames);
-/*! 
+typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames, int numberOfFrames);
+/*!
  * \brief Callback called when NFDriver experiences an error.
  * \param clientdata Client specific data that gets used by the callback.
  * \param errorMessages Error message to print when this callback gets called.
  * \param errorCode Unique number (preferably) that's associated with the error message.
  */
-typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage,
-                                  int errorCode);
+typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, int errorCode);
 
-/*! 
+/*!
  * \brief The version of this library.
  *
  * \return The version, for example 1.0 in use
@@ -99,31 +97,38 @@ extern const char *version();
  * Interface used tracking state of the audio output.
  */
 class NFDriver {
-public:
+ public:
   /*!
    * \brief Thread-safe function to check whether the driver is currently outputting samples.
+   *
    * \return True if there are samples being output. False otherwise.
    */
-  virtual bool isPlaying() const = 0;        // Thread-safe.
+  virtual bool isPlaying() const = 0;
   /*!
    * \brief Thread-safe function to set if the driver should output samples.
-   * \param playing True to tell the driver to start outputting samples, False if not.
+   *
+   * \param playing True to tell the driver to start outputting samples.
+   *                False if not.
    */
-  virtual void setPlaying(bool playing) = 0; // Thread-safe.
+  virtual void setPlaying(bool playing) = 0;
   /*! \brief Destructor */
   virtual ~NFDriver(){};
 
 #if __ANDROID__
-  /*! 
-   * \brief Function to be called when using NFDriver with Android and app has just started.
-   * 
-   * This function is meant to be used with the Java Native Interface (JNI). It will be called when the application using NFDriver has just launched. This function should only be called ONCE per app life-cycle.
+  /*!
+   * \brief Called when using Android and an app has just started.
+   *
+   * This function is meant to be used with the Java Native Interface
+   * (JNI). It will be called when the application using NFDriver has just
+   * launched. This function should only be called ONCE per app life-cycle.
    * \param env JNI Environment
    * \param self The object calling this function
    * \param clientdata Client specific data that gets used by the callback.
    * \param errorCallback Function to call in case NFDriver errors.
    */
-  static void onAppLaunch(JNIEnv *env, jobject self, void *clientdata,
+  static void onAppLaunch(JNIEnv *env,
+                          jobject self,
+                          void *clientdata,
                           NF_ERROR_CALLBACK errorCallback);
 #endif
 
@@ -137,7 +142,8 @@ public:
    * \param will_render_callback Function called before render_callback.
    * \param did_render_callback Function called after render_callback.
    * \param outputType Desired output destination.
-   * \param output_destination Name of output destination if it is a named device, file etc.
+   * \param output_destination Name of output destination if it is a
+   *                           named device, file etc.
    * \return Instance of NFDriver.
    */
   static NFDriver *createNFDriver(void *clientdata,
