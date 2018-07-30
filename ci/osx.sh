@@ -27,7 +27,7 @@ brew install cmake
 brew install ninja
 
 # Install virtualenv
-virtualenv nfdriver_env
+virtualenv --python=$(which python2) nfdriver_env
 source nfdriver_env/bin/activate
 
 # Install Python Packages
