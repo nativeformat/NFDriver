@@ -39,7 +39,7 @@ def main():
     buildOptions.addOption("makeBuildDirectoryArm64",
                            "Wipe existing build directory for ARM64 build.")
     buildOptions.addOption("generateProjectArm64", "Regenerate project for ARM64 build")
-
+    buildOptions.addOption("packageArtifacts", "Package the artifacts produced by the build")
     buildOptions.addOption("buildTargetLibraryArm64", "Build Target: Library (ARM64)")
 
     buildOptions.setDefaultWorkflow("Empty workflow", [])
@@ -49,23 +49,27 @@ def main():
         'makeBuildDirectoryX86',
         'generateProjectX86',
         'buildTargetLibraryX86',
+        'packageArtifacts',
         'makeBuildDirectoryArm64',
         'generateProjectArm64',
-        'buildTargetLibraryArm64'
+        'buildTargetLibraryArm64',
+        'packageArtifacts'
     ])
 
     buildOptions.addWorkflow("buildX86", "Production Build (X86)", [
         'installDependencies',
         'makeBuildDirectoryX86',
         'generateProjectX86',
-        'buildTargetLibraryX86'
+        'buildTargetLibraryX86',
+        'packageArtifacts'
     ])
 
     buildOptions.addWorkflow("buildArm64", "Production Build (ARM64)", [
         'installDependencies',
         'makeBuildDirectoryArm64',
         'generateProjectArm64',
-        'buildTargetLibraryArm64'
+        'buildTargetLibraryArm64',
+        'packageArtifacts'
     ])
 
 
@@ -87,14 +91,20 @@ def main():
     if buildOptions.checkOption(options, 'buildTargetLibraryX86'):
         nfbuild.buildTarget(library_target)
 
+    if buildOptions.checkOption(options, 'packageArtifacts'):
+        nfbuild.packageArtifacts()
+
     if buildOptions.checkOption(options, 'makeBuildDirectoryArm64'):
         nfbuild.makeBuildDirectory()
 
     if buildOptions.checkOption(options, 'generateProjectArm64'):
-        nfbuild.generateProject(android=False, android_arm=True)
+        nfbuild.generateProject(android=True, android_arm=True)
 
     if buildOptions.checkOption(options, 'buildTargetLibraryArm64'):
         nfbuild.buildTarget(library_target)
+
+    if buildOptions.checkOption(options, 'packageArtifacts'):
+        nfbuild.packageArtifacts()
 
 
 if __name__ == "__main__":

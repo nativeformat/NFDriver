@@ -40,12 +40,16 @@ class NFBuildLinux(NFBuild):
         self.project_file = 'build.ninja'
         self.cmake_binary = 'cmake'
         self.android_ndk_folder = '~/ndk'
+        self.android = False
+        self.android_arm = False
 
     def generateProject(self,
                         ios=False,
                         android=False,
                         android_arm=False,
                         gcc=False):
+        self.android = android
+        self.android_arm = android_arm
         cmake_call = [
             self.cmake_binary,
             '..',
@@ -93,5 +97,12 @@ class NFBuildLinux(NFBuild):
         lib_matches = self.find_file(source_folder, lib_name)
         cli_matches = self.find_file(source_folder, cli_name)
         shutil.copyfile(lib_matches[0], os.path.join(artifacts_folder, lib_name))
-        shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
-        self.make_archive(artifacts_folder, os.path.join(output_folder, 'libNFDriver.zip'))
+        if not self.android:
+            shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
+        output_zip = os.path.join(output_folder, 'libNFDriver.zip')
+        self.make_archive(artifacts_folder, output_zip)
+        if self.android:
+            final_zip_name = 'libNFDriver-androidx86.zip'
+            if self.android_arm:
+                final_zip_name = 'libNFDriver-androidArm64.zip'
+            shutil.copyfile(output_zip, final_zip_name)
