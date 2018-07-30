@@ -25,16 +25,21 @@
 namespace nativeformat {
 namespace driver {
 
-NFDriverFileImplementation::NFDriverFileImplementation(
-    void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
-    NF_RENDER_CALLBACK render_callback, NF_ERROR_CALLBACK error_callback,
-    NF_WILL_RENDER_CALLBACK will_render_callback,
-    NF_DID_RENDER_CALLBACK did_render_callback, const char *output_destination)
-    : _clientdata(clientdata), _stutter_callback(stutter_callback),
-      _render_callback(render_callback), _error_callback(error_callback),
+NFDriverFileImplementation::NFDriverFileImplementation(void *clientdata,
+                                                       NF_STUTTER_CALLBACK stutter_callback,
+                                                       NF_RENDER_CALLBACK render_callback,
+                                                       NF_ERROR_CALLBACK error_callback,
+                                                       NF_WILL_RENDER_CALLBACK will_render_callback,
+                                                       NF_DID_RENDER_CALLBACK did_render_callback,
+                                                       const char *output_destination)
+    : _clientdata(clientdata),
+      _stutter_callback(stutter_callback),
+      _render_callback(render_callback),
+      _error_callback(error_callback),
       _will_render_callback(will_render_callback),
       _did_render_callback(did_render_callback),
-      _output_destination(output_destination), _thread(nullptr) {}
+      _output_destination(output_destination),
+      _thread(nullptr) {}
 
 NFDriverFileImplementation::~NFDriverFileImplementation() {
   if (isPlaying()) {
@@ -42,7 +47,9 @@ NFDriverFileImplementation::~NFDriverFileImplementation() {
   }
 }
 
-bool NFDriverFileImplementation::isPlaying() const { return !!_thread; }
+bool NFDriverFileImplementation::isPlaying() const {
+  return !!_thread;
+}
 
 void NFDriverFileImplementation::setPlaying(bool playing) {
   if (isPlaying() == playing) {
@@ -55,8 +62,7 @@ void NFDriverFileImplementation::setPlaying(bool playing) {
     _thread = nullptr;
   } else {
     _run = true;
-    _thread =
-        std::make_shared<std::thread>(&NFDriverFileImplementation::run, this);
+    _thread = std::make_shared<std::thread>(&NFDriverFileImplementation::run, this);
   }
 }
 
@@ -90,8 +96,7 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   header.numChannels = 2;
   header.bitsPerSample = 32;
   header.samplerate = NF_DRIVER_SAMPLERATE;
-  header.byteRate =
-      header.samplerate * header.numChannels * (header.bitsPerSample >> 3);
+  header.byteRate = header.samplerate * header.numChannels * (header.bitsPerSample >> 3);
   header.blockAlign = header.numChannels * (header.bitsPerSample >> 3);
   std::memcpy(header.DATA, "data", 4);
   fwrite(&header, 1, sizeof(header), fhandle);
@@ -101,8 +106,8 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   size_t numFrames = 0;
   while (driver->_run) {
     driver->_will_render_callback(driver->_clientdata);
-    numFrames = (size_t)driver->_render_callback(driver->_clientdata, buffer,
-                                                 NF_DRIVER_SAMPLE_BLOCK_SIZE);
+    numFrames =
+        (size_t)driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE);
     if (numFrames < 1) {
       driver->_stutter_callback(driver->_clientdata);
     } else {
@@ -113,8 +118,7 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   }
 
   // Write the size into the header and close the file.
-  unsigned int position =
-      (unsigned int)((size_t)ftell(fhandle) - sizeof(header));
+  unsigned int position = (unsigned int)((size_t)ftell(fhandle) - sizeof(header));
   fseek(fhandle, 40, SEEK_SET);
   fwrite(&position, 1, 4, fhandle);
   position += 36;
@@ -123,5 +127,5 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   fclose(fhandle);
 }
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat

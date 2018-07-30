@@ -30,7 +30,7 @@ namespace nativeformat {
 namespace driver {
 
 class NFDriverFileImplementation : public NFDriver {
-public:
+ public:
   bool isPlaying() const;
   void setPlaying(bool playing);
 
@@ -43,7 +43,7 @@ public:
                              const char *output_destination);
   ~NFDriverFileImplementation();
 
-private:
+ private:
   void *_clientdata;
   const NF_STUTTER_CALLBACK _stutter_callback;
   const NF_RENDER_CALLBACK _render_callback;
@@ -58,5 +58,5 @@ private:
   static void run(NFDriverFileImplementation *driver);
 };
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat

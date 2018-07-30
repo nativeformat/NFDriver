@@ -27,7 +27,9 @@
 namespace nativeformat {
 namespace driver {
 
-const char *version() { return NFDRIVER_VERSION; }
+const char *version() {
+  return NFDRIVER_VERSION;
+}
 
 NFDriver *NFDriver::createNFDriver(void *clientdata,
                                    NF_STUTTER_CALLBACK stutter_callback,
@@ -38,17 +40,24 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                    OutputType outputType,
                                    const char *output_destination) {
   switch (outputType) {
-  case OutputTypeSoundCard:
-    return new NFSoundCardDriver(clientdata, stutter_callback, render_callback,
-                                 error_callback, will_render_callback,
-                                 did_render_callback);
-  case OutputTypeFile:
-    return new NFDriverFileImplementation(
-        clientdata, stutter_callback, render_callback, error_callback,
-        will_render_callback, did_render_callback, output_destination);
+    case OutputTypeSoundCard:
+      return new NFSoundCardDriver(clientdata,
+                                   stutter_callback,
+                                   render_callback,
+                                   error_callback,
+                                   will_render_callback,
+                                   did_render_callback);
+    case OutputTypeFile:
+      return new NFDriverFileImplementation(clientdata,
+                                            stutter_callback,
+                                            render_callback,
+                                            error_callback,
+                                            will_render_callback,
+                                            did_render_callback,
+                                            output_destination);
   }
   return 0;
 }
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat

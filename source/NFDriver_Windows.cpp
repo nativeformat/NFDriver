@@ -20,13 +20,13 @@
  */
 #if _WIN32
 
-#include "NFDriverAdapter.h"
 #include <Audioclient.h>
 #include <collection.h>
 #include <mfapi.h>
 #include <mmdeviceapi.h>
 #include <ppltasks.h>
 #include <wrl\implements.h>
+#include "NFDriverAdapter.h"
 
 namespace nativeformat {
 namespace driver {
@@ -48,20 +48,22 @@ typedef struct streamHandlerInternals {
 // This class handles the actual audio output stream.
 // The reason why this class is separate to NFSoundCardDriver is the
 // RuntimeClass stuff.
-class streamHandler
-    : public Microsoft::WRL::RuntimeClass<
-          Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
-          Microsoft::WRL::FtmBase, IMFAsyncCallback,
-          IActivateAudioInterfaceCompletionHandler> {
-public:
+class streamHandler : public Microsoft::WRL::RuntimeClass<
+                          Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
+                          Microsoft::WRL::FtmBase,
+                          IMFAsyncCallback,
+                          IActivateAudioInterfaceCompletionHandler> {
+ public:
   bool running;
 
-  streamHandler(void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
+  streamHandler(void *clientdata,
+                NF_STUTTER_CALLBACK stutter_callback,
                 NF_RENDER_CALLBACK render_callback,
                 NF_ERROR_CALLBACK error_callback,
                 NF_WILL_RENDER_CALLBACK will_render_callback,
                 NF_DID_RENDER_CALLBACK did_render_callback,
-                DWORD workQueueIdentifier, bool rawProcessingSupported)
+                DWORD workQueueIdentifier,
+                bool rawProcessingSupported)
       : running(false) {
     internals = new streamHandlerInternals;
     memset(internals, 0, sizeof(streamHandlerInternals));
@@ -71,11 +73,13 @@ public:
     internals->stop = false;
     internals->workQueueId = workQueueIdentifier;
     internals->raw = rawProcessingSupported;
-    internals->sampleReadyEvent =
-        CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
-    internals->adapter = new NFDriverAdapter(
-        clientdata, stutter_callback, render_callback, error_callback,
-        will_render_callback, did_render_callback);
+    internals->sampleReadyEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
+    internals->adapter = new NFDriverAdapter(clientdata,
+                                             stutter_callback,
+                                             render_callback,
+                                             error_callback,
+                                             will_render_callback,
+                                             did_render_callback);
   }
 
   STDMETHODIMP GetParameters(DWORD *flags, DWORD *queue) {
@@ -87,9 +91,8 @@ public:
   // This is the audio rendering callback, called by a Media Foundation audio
   // thread.
   STDMETHODIMP Invoke(IMFAsyncResult *result) {
-    if (internals->stop) { // Handle stopping.
-      if (internals->client)
-        internals->client->Stop();
+    if (internals->stop) {  // Handle stopping.
+      if (internals->client) internals->client->Stop();
       fail(NULL);
       // At this point the stream will never call any callbacks anymore.
       return E_FAIL;
@@ -99,23 +102,20 @@ public:
     // beginning.
     UINT32 padding;
     HRESULT hr = internals->client->GetCurrentPadding(&padding);
-    if (FAILED(hr))
-      return hr;
+    if (FAILED(hr)) return hr;
 
     int framesLeft = internals->bufferSize - padding;
     if (framesLeft > 0) {
       // Get the buffer to write.
       BYTE *buffer;
       hr = internals->renderClient->GetBuffer(framesLeft, &buffer);
-      if (FAILED(hr))
-        return hr;
+      if (FAILED(hr)) return hr;
 
       bool silence = true;
       int framesWritten = 0;
 
       while (framesLeft >= internals->numberOfSamples) {
-        if (!internals->adapter->getFrames((float *)buffer, NULL,
-                                           internals->numberOfSamples, 2))
+        if (!internals->adapter->getFrames((float *)buffer, NULL, internals->numberOfSamples, 2))
           memset(buffer, 0, internals->numberOfSamples * sizeof(float) * 2);
         else
           silence = false;
@@ -126,13 +126,11 @@ public:
       }
 
       // Release the buffer and enqueue.
-      internals->renderClient->ReleaseBuffer(
-          framesWritten, silence ? AUDCLNT_BUFFERFLAGS_SILENT : 0);
-      hr = MFPutWaitingWorkItem(internals->sampleReadyEvent, 0,
-                                internals->sampleReadyAsyncResult,
-                                &internals->cancelKey);
-      if (FAILED(hr))
-        return hr;
+      internals->renderClient->ReleaseBuffer(framesWritten,
+                                             silence ? AUDCLNT_BUFFERFLAGS_SILENT : 0);
+      hr = MFPutWaitingWorkItem(
+          internals->sampleReadyEvent, 0, internals->sampleReadyAsyncResult, &internals->cancelKey);
+      if (FAILED(hr)) return hr;
     }
 
     return S_OK;
@@ -141,39 +139,31 @@ public:
   // Called by Windows when the audio interface is activated.
   STDMETHOD(ActivateCompleted)
   (IActivateAudioInterfaceAsyncOperation *operation) {
-    if (!internals->sampleReadyEvent)
-      return fail("CreateEventEx failed");
+    if (!internals->sampleReadyEvent) return fail("CreateEventEx failed");
 
     // Get the COM interfaces.
     IUnknown *audioInterface = nullptr;
-    HRESULT hrActivateResult = S_OK, hr = operation->GetActivateResult(
-                                         &hrActivateResult, &audioInterface);
-    if (FAILED(hr))
-      return fail("GetActivateResult failed");
-    if (FAILED(hrActivateResult))
-      return fail("ActiveResult is invalid.");
+    HRESULT hrActivateResult = S_OK,
+            hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
+    if (FAILED(hr)) return fail("GetActivateResult failed");
+    if (FAILED(hrActivateResult)) return fail("ActiveResult is invalid.");
     audioInterface->QueryInterface(IID_PPV_ARGS(&internals->client));
-    if (!internals->client)
-      return fail("QueryInterface failed.");
+    if (!internals->client) return fail("QueryInterface failed.");
 
     // Set raw capability (for low-latency).
     AudioClientProperties properties = {0};
     properties.cbSize = sizeof(AudioClientProperties);
     properties.eCategory = AudioCategory_Media;
-    if (internals->raw)
-      properties.Options |= AUDCLNT_STREAMOPTIONS_RAW;
+    if (internals->raw) properties.Options |= AUDCLNT_STREAMOPTIONS_RAW;
     if (FAILED(internals->client->SetClientProperties(&properties)))
       return fail("SetClientProperties failed.");
 
     // Get the stream properties (sample rate, buffer size).
     WAVEFORMATEX *format;
-    if (FAILED(internals->client->GetMixFormat(&format)))
-      return fail("GetMixFormat failed.");
-    UINT32 defaultPeriodFrames, fundamentalPeriodFrames, minPeriodFrames,
-        maxPeriodFrames;
+    if (FAILED(internals->client->GetMixFormat(&format))) return fail("GetMixFormat failed.");
+    UINT32 defaultPeriodFrames, fundamentalPeriodFrames, minPeriodFrames, maxPeriodFrames;
     hr = internals->client->GetSharedModeEnginePeriod(
-        format, &defaultPeriodFrames, &fundamentalPeriodFrames,
-        &minPeriodFrames, &maxPeriodFrames);
+        format, &defaultPeriodFrames, &fundamentalPeriodFrames, &minPeriodFrames, &maxPeriodFrames);
     if (FAILED(hr)) {
       CoTaskMemFree(format);
       return fail("GetSharedModeEnginePeriod failed.");
@@ -186,8 +176,7 @@ public:
     hr = internals->client->InitializeSharedAudioStream(
         AUDCLNT_STREAMFLAGS_EVENTCALLBACK, minPeriodFrames, format, nullptr);
     CoTaskMemFree(format);
-    if (FAILED(hr))
-      return fail("InitializeSharedAudioStream failed.");
+    if (FAILED(hr)) return fail("InitializeSharedAudioStream failed.");
 
     // Get the buffer size.
     UINT32 uBufferSize = 0;
@@ -196,17 +185,16 @@ public:
     internals->bufferSize = int(uBufferSize);
 
     // Start the audio rendering.
-    if (FAILED(internals->client->GetService(
-            __uuidof(IAudioRenderClient), (void **)&internals->renderClient)))
+    if (FAILED(internals->client->GetService(__uuidof(IAudioRenderClient),
+                                             (void **)&internals->renderClient)))
       return fail("GetService failed.");
-    if (FAILED(MFCreateAsyncResult(nullptr, this, nullptr,
-                                   &internals->sampleReadyAsyncResult)))
+    if (FAILED(MFCreateAsyncResult(nullptr, this, nullptr, &internals->sampleReadyAsyncResult)))
       return fail("MFCreateAsyncResult failed.");
     if (FAILED(internals->client->SetEventHandle(internals->sampleReadyEvent)))
       return fail("SetEventHandle failed.");
-    if (FAILED(internals->client->Start()))
-      return fail("Start failed.");
-    if (FAILED(MFPutWaitingWorkItem(internals->sampleReadyEvent, 0,
+    if (FAILED(internals->client->Start())) return fail("Start failed.");
+    if (FAILED(MFPutWaitingWorkItem(internals->sampleReadyEvent,
+                                    0,
                                     internals->sampleReadyAsyncResult,
                                     &internals->cancelKey)))
       return fail("MFPutWaitingWorkItem failed.");
@@ -218,30 +206,23 @@ public:
   // Delete the handler. The actual operation will happen at Invoke()
   // asynchronously.
   static void release(Microsoft::WRL::ComPtr<streamHandler> stream) {
-    if (stream == nullptr)
-      return;
+    if (stream == nullptr) return;
     streamHandler *handler = *stream.GetAddressOf();
-    if (handler->running)
-      handler->internals->stop = true;
+    if (handler->running) handler->internals->stop = true;
   }
 
-private:
+ private:
   streamHandlerInternals *internals;
 
   HRESULT fail(const char *message) {
-    if (internals->cancelKey != 0)
-      MFCancelWorkItem(internals->cancelKey);
-    if (internals->client)
-      internals->client->Release();
-    if (internals->renderClient)
-      internals->renderClient->Release();
-    if (internals->sampleReadyAsyncResult)
-      internals->sampleReadyAsyncResult->Release();
+    if (internals->cancelKey != 0) MFCancelWorkItem(internals->cancelKey);
+    if (internals->client) internals->client->Release();
+    if (internals->renderClient) internals->renderClient->Release();
+    if (internals->sampleReadyAsyncResult) internals->sampleReadyAsyncResult->Release();
     if (internals->sampleReadyEvent != INVALID_HANDLE_VALUE)
       CloseHandle(internals->sampleReadyEvent);
     delete internals->adapter;
-    if (message)
-      internals->errorCallback(internals->clientdata, message, 0);
+    if (message) internals->errorCallback(internals->clientdata, message, 0);
     delete internals;
     return E_FAIL;
   }
@@ -258,11 +239,12 @@ typedef struct nativeformat::driver::NFSoundCardDriverInternals {
   long isPlaying;
 } NFSoundCardDriverInternals;
 
-NFSoundCardDriver::NFSoundCardDriver(
-    void *clientdata, NF_STUTTER_CALLBACK stutter_callback,
-    NF_RENDER_CALLBACK render_callback, NF_ERROR_CALLBACK error_callback,
-    NF_WILL_RENDER_CALLBACK will_render_callback,
-    NF_DID_RENDER_CALLBACK did_render_callback) {
+NFSoundCardDriver::NFSoundCardDriver(void *clientdata,
+                                     NF_STUTTER_CALLBACK stutter_callback,
+                                     NF_RENDER_CALLBACK render_callback,
+                                     NF_ERROR_CALLBACK error_callback,
+                                     NF_WILL_RENDER_CALLBACK will_render_callback,
+                                     NF_DID_RENDER_CALLBACK did_render_callback) {
   internals = new NFSoundCardDriverInternals;
   memset(internals, 0, sizeof(NFSoundCardDriverInternals));
   internals->clientdata = clientdata;
@@ -280,12 +262,10 @@ NFSoundCardDriver::~NFSoundCardDriver() {
 
 static void start(NFSoundCardDriverInternals *internals) {
   // Getting the default output device.
-  Platform::String ^ outputDeviceId =
-      Windows::Media::Devices::MediaDevice::GetDefaultAudioRenderId(
-          Windows::Media::Devices::AudioDeviceRole::Default);
+  Platform::String ^ outputDeviceId = Windows::Media::Devices::MediaDevice::GetDefaultAudioRenderId(
+      Windows::Media::Devices::AudioDeviceRole::Default);
   if (!outputDeviceId) {
-    internals->errorCallback(internals->clientdata,
-                             "GetDefaultAudioRenderId failed.", 0);
+    internals->errorCallback(internals->clientdata, "GetDefaultAudioRenderId failed.", 0);
     return;
   }
 
@@ -299,35 +279,37 @@ static void start(NFSoundCardDriverInternals *internals) {
   DWORD taskId = 0, workQueueId = 0;
   if (FAILED(MFLockSharedWorkQueue(L"Pro Audio", 0, &taskId, &workQueueId))) {
     MFShutdown();
-    internals->errorCallback(internals->clientdata,
-                             "MFLockSharedWorkQueue failed.", 0);
+    internals->errorCallback(internals->clientdata, "MFLockSharedWorkQueue failed.", 0);
     return;
   }
   auto properties = ref new Platform::Collections::Vector<Platform::String ^>();
   properties->Append("System.Devices.AudioDevice.RawProcessingSupported");
 
   // Create the stream handler asynchronously. COM is fun! (not)
-  Concurrency::create_task(
-      Windows::Devices::Enumeration::DeviceInformation::CreateFromIdAsync(
-          outputDeviceId, properties))
-      .then([outputDeviceId, internals,
-             workQueueId](Windows::Devices::Enumeration::DeviceInformation ^
-                          deviceInformation) {
+  Concurrency::create_task(Windows::Devices::Enumeration::DeviceInformation::CreateFromIdAsync(
+                               outputDeviceId, properties))
+      .then([outputDeviceId, internals, workQueueId](
+                Windows::Devices::Enumeration::DeviceInformation ^ deviceInformation) {
         auto obj = deviceInformation->Properties->Lookup(
             "System.Devices.AudioDevice.RawProcessingSupported");
         bool rawProcessingSupported = false;
-        if (obj)
-          rawProcessingSupported = obj->Equals(true);
+        if (obj) rawProcessingSupported = obj->Equals(true);
 
-        internals->outputHandler = Microsoft::WRL::Make<streamHandler>(
-            internals->clientdata, internals->stutterCallback,
-            internals->renderCallback, internals->errorCallback,
-            internals->willRenderCallback, internals->didRenderCallback,
-            workQueueId, rawProcessingSupported);
+        internals->outputHandler =
+            Microsoft::WRL::Make<streamHandler>(internals->clientdata,
+                                                internals->stutterCallback,
+                                                internals->renderCallback,
+                                                internals->errorCallback,
+                                                internals->willRenderCallback,
+                                                internals->didRenderCallback,
+                                                workQueueId,
+                                                rawProcessingSupported);
         IActivateAudioInterfaceAsyncOperation *asyncOperation;
-        ActivateAudioInterfaceAsync(
-            outputDeviceId->Data(), __uuidof(IAudioClient3), nullptr,
-            *internals->outputHandler.GetAddressOf(), &asyncOperation);
+        ActivateAudioInterfaceAsync(outputDeviceId->Data(),
+                                    __uuidof(IAudioClient3),
+                                    nullptr,
+                                    *internals->outputHandler.GetAddressOf(),
+                                    &asyncOperation);
       });
 }
 
@@ -356,7 +338,7 @@ void NFSoundCardDriver::setPlaying(bool playing) {
   }
 }
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat
 
-#endif // _win32
+#endif  // _win32

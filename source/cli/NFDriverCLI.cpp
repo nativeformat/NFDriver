@@ -35,17 +35,17 @@
 #include <jni.h>
 #endif
 
-static void stutterCallback(void *clientdata) { printf("stutter\n"); }
+static void stutterCallback(void *clientdata) {
+  printf("stutter\n");
+}
 
-static void errorCallback(void *clientdata, const char *errorMessage,
-                          int errorCode) {
+static void errorCallback(void *clientdata, const char *errorMessage, int errorCode) {
   printf("error %i: %s\n", errorCode, errorMessage);
 }
 
 static int renderCallback(void *clientdata, float *frames, int numberOfFrames) {
   const float *samplerate = (float *)clientdata;
-  const float multiplier =
-      (2.0f * float(M_PI) * *samplerate) / float(NF_DRIVER_SAMPLERATE);
+  const float multiplier = (2.0f * float(M_PI) * *samplerate) / float(NF_DRIVER_SAMPLERATE);
   static unsigned int sinewave = 0;
   float audio;
 
@@ -64,14 +64,13 @@ static void didRenderCallback(void *clientdata) {}
 
 #ifdef __ANDROID__
 extern "C" JNIEXPORT void JNICALL
-Java_com_spotify_nfdrivertest_1android_MainActivity_nativeMain(JNIEnv *env,
-                                                               jobject self) {
+Java_com_spotify_nfdrivertest_1android_MainActivity_nativeMain(JNIEnv *env, jobject self) {
 #else
 int main(int argc, const char *argv[]) {
 #endif
 
-  std::cout << "NativeFormat Driver Command Line Interface "
-            << nativeformat::driver::version() << std::endl;
+  std::cout << "NativeFormat Driver Command Line Interface " << nativeformat::driver::version()
+            << std::endl;
 
 #ifdef __ANDROID__
   NFDriver::onAppLaunch(env, self, NULL, errorCallback);
@@ -81,8 +80,7 @@ int main(int argc, const char *argv[]) {
   const std::string samplerate_string = "44100.0";
 #else
   if (argc < 2) {
-    std::cout << "Invalid number of arguments: ./NFDriver [samplerate]"
-              << std::endl;
+    std::cout << "Invalid number of arguments: ./NFDriver [samplerate]" << std::endl;
     return 1;
   }
   const std::string samplerate_string = argv[1];
@@ -91,10 +89,13 @@ int main(int argc, const char *argv[]) {
   float samplerate = static_cast<float>(atof(samplerate_string.c_str()));
 
   nativeformat::driver::NFDriver *driver =
-      nativeformat::driver::NFDriver::createNFDriver(
-          &samplerate, stutterCallback, renderCallback, errorCallback,
-          willRenderCallback, didRenderCallback,
-          nativeformat::driver::OutputTypeSoundCard);
+      nativeformat::driver::NFDriver::createNFDriver(&samplerate,
+                                                     stutterCallback,
+                                                     renderCallback,
+                                                     errorCallback,
+                                                     willRenderCallback,
+                                                     didRenderCallback,
+                                                     nativeformat::driver::OutputTypeSoundCard);
   driver->setPlaying(true);
 
 #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE

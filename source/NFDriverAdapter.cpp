@@ -45,12 +45,11 @@ namespace driver {
 // Nyquist frequency and in the -90 db or lower region. Audiophile bats may
 // complain. Humans are not able to notice.
 typedef struct resamplerData {
-  uint64_t *
-      input; // A buffer on the heap to store NF_DRIVER_SAMPLE_BLOCK_SIZE audio.
+  uint64_t *input;  // A buffer on the heap to store NF_DRIVER_SAMPLE_BLOCK_SIZE audio.
   union {
     float f[2];
-    uint64_t i; // Makes loads faster a bit. Don't believe the hype, compilers
-                // are still quite dumb.
+    uint64_t i;  // Makes loads faster a bit. Don't believe the hype, compilers
+                 // are still quite dumb.
   } prev;
   float rate, slopeCount;
 } resamplerData;
@@ -58,9 +57,9 @@ typedef struct resamplerData {
 // This linear resampler is not "Superpowered", but still faster than most naive
 // implementations.
 static int resample(float *output, resamplerData *resampler, int numFrames) {
-  resamplerData stack = *resampler; // Local copy on the stack, preventing the
-                                    // compiler writing back intermediate
-                                    // results to memory.
+  resamplerData stack = *resampler;  // Local copy on the stack, preventing the
+                                     // compiler writing back intermediate
+                                     // results to memory.
   float left, right, invSlopeCount;
   int outFrames = 0;
 
@@ -69,8 +68,8 @@ static int resample(float *output, resamplerData *resampler, int numFrames) {
       numFrames--;
       stack.slopeCount -= 1.0f;
 
-      if (!numFrames) { // Quit resampling, writing back the intermediate
-                        // results to memory.
+      if (!numFrames) {  // Quit resampling, writing back the intermediate
+                         // results to memory.
         resampler->slopeCount = stack.slopeCount;
         resampler->prev.i = stack.prev.i;
         return outFrames;
@@ -95,9 +94,9 @@ static int resample(float *output, resamplerData *resampler, int numFrames) {
   }
 }
 
-static void makeOutput(float *input, float **outputLeft, float **outputRight,
-                       int numFrames, int numChannels) {
-  if (numChannels == 1) { // Mono output.
+static void makeOutput(
+    float *input, float **outputLeft, float **outputRight, int numFrames, int numChannels) {
+  if (numChannels == 1) {  // Mono output.
     float *mono = *outputLeft;
     *outputLeft += numFrames;
 
@@ -105,8 +104,8 @@ static void makeOutput(float *input, float **outputLeft, float **outputRight,
       *mono++ = (input[0] + input[1]) * 0.5f;
       input += 2;
     }
-  } else if (*outputRight) { // Stereo non-interleaved output, deinterleave to
-                             // left and right.
+  } else if (*outputRight) {  // Stereo non-interleaved output, deinterleave to
+                              // left and right.
     float *left = *outputLeft, *right = *outputRight;
     *outputLeft += numFrames;
     *outputRight += numFrames;
@@ -115,8 +114,8 @@ static void makeOutput(float *input, float **outputLeft, float **outputRight,
       *left++ = *input++;
       *right++ = *input++;
     }
-  } else if (numChannels > 2) { // Interleaved output with more than 2 channels.
-                                // Can happen with Linux only.
+  } else if (numChannels > 2) {  // Interleaved output with more than 2 channels.
+                                 // Can happen with Linux only.
     float *output = *outputLeft;
     *outputLeft += numFrames * numChannels;
     memset(output, 0, (size_t)(numFrames * numChannels) * sizeof(float));
@@ -126,7 +125,7 @@ static void makeOutput(float *input, float **outputLeft, float **outputRight,
       output += numChannels;
       input += 2;
     }
-  } else { // Stereo interleaved output.
+  } else {  // Stereo interleaved output.
     memcpy(*outputLeft, input, (size_t)numFrames * sizeof(float) * 2);
     *outputLeft += numFrames * 2;
   }
@@ -141,8 +140,8 @@ typedef struct NFDriverAdapterInternals {
   NF_DID_RENDER_CALLBACK didRenderCallback;
   NF_STUTTER_CALLBACK stutterCallback;
   float *interleavedBuffer;
-  int bufferCapacityFrames, framesInBuffer, readPositionFrames,
-      writePositionFrames, bufferCapacityToEndNeeded;
+  int bufferCapacityFrames, framesInBuffer, readPositionFrames, writePositionFrames,
+      bufferCapacityToEndNeeded;
   ATOMIC_SIGNED_INT nextSamplerate;
   bool needsResampling;
 } NFDriverAdapterInternals;
@@ -164,46 +163,41 @@ NFDriverAdapter::NFDriverAdapter(void *clientdata,
 
   int volatile numBlocks = NF_DRIVER_SAMPLERATE / NF_DRIVER_SAMPLE_BLOCK_SIZE;
   internals->bufferCapacityFrames =
-      numBlocks * NF_DRIVER_SAMPLE_BLOCK_SIZE; // Will be around 1 second big.
+      numBlocks * NF_DRIVER_SAMPLE_BLOCK_SIZE;  // Will be around 1 second big.
   internals->interleavedBuffer =
       (float *)malloc((size_t)internals->bufferCapacityFrames * sizeof(float) *
-                      2); // 344 kb at 44100 Hz and 1024 frames.
+                      2);  // 344 kb at 44100 Hz and 1024 frames.
   if (!internals->interleavedBuffer)
     error_callback(clientdata, "Out of memory in NFDriverAdapter.", 0);
 
-  internals->resampler.input =
-      (uint64_t *)malloc(NF_DRIVER_SAMPLE_BLOCK_SIZE * sizeof(uint64_t));
+  internals->resampler.input = (uint64_t *)malloc(NF_DRIVER_SAMPLE_BLOCK_SIZE * sizeof(uint64_t));
   if (!internals->resampler.input)
     error_callback(clientdata, "Out of memory in NFDriverAdapter.", 0);
 }
 
 NFDriverAdapter::~NFDriverAdapter() {
-  if (internals->interleavedBuffer)
-    free(internals->interleavedBuffer);
-  if (internals->resampler.input)
-    free(internals->resampler.input);
+  if (internals->interleavedBuffer) free(internals->interleavedBuffer);
+  if (internals->resampler.input) free(internals->resampler.input);
   delete internals;
 }
 
 // Should be called in the audio processing/rendering callback of the audio I/O.
-bool NFDriverAdapter::getFrames(float *outputLeft, float *outputRight,
-                                int numFrames, int numChannels) {
-  if (!internals->interleavedBuffer || !internals->resampler.input)
-    return false;
+bool NFDriverAdapter::getFrames(float *outputLeft,
+                                float *outputRight,
+                                int numFrames,
+                                int numChannels) {
+  if (!internals->interleavedBuffer || !internals->resampler.input) return false;
   internals->willRenderCallback(internals->clientdata);
 
-  ATOMIC_SIGNED_INT nextSamplerate = ATOMICZERO(
-      internals
-          ->nextSamplerate); // Make it zero, return with the previous value.
+  ATOMIC_SIGNED_INT nextSamplerate =
+      ATOMICZERO(internals->nextSamplerate);  // Make it zero, return with the previous value.
   if (nextSamplerate != 0) {
     internals->needsResampling = (nextSamplerate != NF_DRIVER_SAMPLERATE);
-    internals->resampler.rate =
-        float(NF_DRIVER_SAMPLERATE) / float(nextSamplerate);
+    internals->resampler.rate = float(NF_DRIVER_SAMPLERATE) / float(nextSamplerate);
     internals->bufferCapacityToEndNeeded =
-        internals->needsResampling
-            ? int((float(nextSamplerate) / float(NF_DRIVER_SAMPLERATE)) *
-                  (NF_DRIVER_SAMPLE_BLOCK_SIZE + 2))
-            : NF_DRIVER_SAMPLE_BLOCK_SIZE;
+        internals->needsResampling ? int((float(nextSamplerate) / float(NF_DRIVER_SAMPLERATE)) *
+                                         (NF_DRIVER_SAMPLE_BLOCK_SIZE + 2))
+                                   : NF_DRIVER_SAMPLE_BLOCK_SIZE;
   }
 
   // Render audio if needed.
@@ -215,32 +209,28 @@ bool NFDriverAdapter::getFrames(float *outputLeft, float *outputRight,
       // and all "virtual memory tricks" will do this anyway behind the curtain.
       if (internals->framesInBuffer > 0)
         memmove(internals->interleavedBuffer,
-                internals->interleavedBuffer +
-                    internals->readPositionFrames * 2,
+                internals->interleavedBuffer + internals->readPositionFrames * 2,
                 (size_t)internals->framesInBuffer * sizeof(float) * 2);
       internals->readPositionFrames = 0;
       internals->writePositionFrames = internals->framesInBuffer;
     }
 
     int framesRendered;
-    if (!internals->needsResampling) { // No resampling needed, render directly
-                                       // into our buffer.
+    if (!internals->needsResampling) {  // No resampling needed, render directly
+                                        // into our buffer.
       framesRendered = internals->renderCallback(
           internals->clientdata,
           internals->interleavedBuffer + internals->writePositionFrames * 2,
           NF_DRIVER_SAMPLE_BLOCK_SIZE);
-      if (framesRendered <= 0)
-        break;
-    } else { // Resampling needed, render into the resampler's input buffer, the
-             // resample into our buffer.
+      if (framesRendered <= 0) break;
+    } else {  // Resampling needed, render into the resampler's input buffer, the
+              // resample into our buffer.
       framesRendered = internals->renderCallback(
-          internals->clientdata, (float *)internals->resampler.input,
-          NF_DRIVER_SAMPLE_BLOCK_SIZE);
-      if (framesRendered <= 0)
-        break;
-      framesRendered = resample(internals->interleavedBuffer +
-                                    internals->writePositionFrames * 2,
-                                &internals->resampler, framesRendered);
+          internals->clientdata, (float *)internals->resampler.input, NF_DRIVER_SAMPLE_BLOCK_SIZE);
+      if (framesRendered <= 0) break;
+      framesRendered = resample(internals->interleavedBuffer + internals->writePositionFrames * 2,
+                                &internals->resampler,
+                                framesRendered);
     }
 
     internals->writePositionFrames += framesRendered;
@@ -251,13 +241,14 @@ bool NFDriverAdapter::getFrames(float *outputLeft, float *outputRight,
   bool success = internals->framesInBuffer >= numFrames;
   if (success) {
     // Output numFrames of audio, or until the end of our buffer.
-    int framesAvailableToEnd =
-        internals->bufferCapacityFrames - internals->readPositionFrames;
-    if (framesAvailableToEnd > numFrames)
-      framesAvailableToEnd = numFrames;
+    int framesAvailableToEnd = internals->bufferCapacityFrames - internals->readPositionFrames;
+    if (framesAvailableToEnd > numFrames) framesAvailableToEnd = numFrames;
 
     makeOutput(internals->interleavedBuffer + internals->readPositionFrames * 2,
-               &outputLeft, &outputRight, framesAvailableToEnd, numChannels);
+               &outputLeft,
+               &outputRight,
+               framesAvailableToEnd,
+               numChannels);
     internals->readPositionFrames += framesAvailableToEnd;
     if (internals->readPositionFrames >= internals->bufferCapacityFrames)
       internals->readPositionFrames = 0;
@@ -265,8 +256,7 @@ bool NFDriverAdapter::getFrames(float *outputLeft, float *outputRight,
     // Start from the beginning of our buffer if needed. (Wrap around.)
     int moreFrames = numFrames - framesAvailableToEnd;
     if (moreFrames > 0) {
-      makeOutput(internals->interleavedBuffer, &outputLeft, &outputRight,
-                 moreFrames, numChannels);
+      makeOutput(internals->interleavedBuffer, &outputLeft, &outputRight, moreFrames, numChannels);
       internals->readPositionFrames += moreFrames;
     }
 
@@ -284,12 +274,11 @@ void NFDriverAdapter::setSamplerate(int samplerate) {
 }
 
 int NFDriverAdapter::getOptimalNumberOfFrames(int samplerate) {
-  if (samplerate == NF_DRIVER_SAMPLERATE)
-    return NF_DRIVER_SAMPLE_BLOCK_SIZE;
+  if (samplerate == NF_DRIVER_SAMPLERATE) return NF_DRIVER_SAMPLE_BLOCK_SIZE;
 
   float rate = float(samplerate) / float(NF_DRIVER_SAMPLERATE);
   return int(NF_DRIVER_SAMPLE_BLOCK_SIZE * rate);
 }
 
-} // namespace driver
-} // namespace nativeformat
+}  // namespace driver
+}  // namespace nativeformat
