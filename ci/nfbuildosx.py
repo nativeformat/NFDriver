@@ -42,12 +42,14 @@ class NFBuildOSX(NFBuild):
         self.cmake_binary = 'cmake'
         self.android_ndk_folder = '/usr/local/share/android-ndk'
         self.ninja_binary = 'ninja'
+        self.ios = False
 
     def generateProject(self,
                         ios=False,
                         android=False,
                         android_arm=False):
         self.use_ninja = android or android_arm
+        self.ios = ios
         cmake_call = [
             self.cmake_binary,
             '..']
@@ -68,8 +70,8 @@ class NFBuildOSX(NFBuild):
             self.project_file = 'build.ninja'
         else:
             cmake_call.extend(['-GXcode'])
-	if ios:
-	    cmake_call.extend(['-DIOS=1'])
+        if ios:
+            cmake_call.extend(['-DIOS=1'])
         cmake_result = subprocess.call(cmake_call, cwd=self.build_directory)
         if cmake_result != 0:
             sys.exit(cmake_result)
@@ -186,5 +188,6 @@ class NFBuildOSX(NFBuild):
         lipo_result = subprocess.call(lipo_command)
         if lipo_result != 0:
             sys.exit(lipo_result)
-        shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
+        if not self.ios:
+            shutil.copyfile(cli_matches[0], os.path.join(artifacts_folder, cli_name))
         self.make_archive(artifacts_folder, os.path.join(output_folder, 'libNFDriver.zip'))

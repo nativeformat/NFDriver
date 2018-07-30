@@ -37,7 +37,7 @@ def main():
                            "Build Target: iPhone Simulator")
     buildOptions.addOption("buildTargetIphoneOS", "Build Target: iPhone OS")
     buildOptions.addOption("staticAnalysis", "Run Static Analysis")
-
+    buildOptions.addOption("packageArtifacts", "Package the artifacts produced by the build")
     buildOptions.setDefaultWorkflow("Empty workflow", [])
 
     buildOptions.addWorkflow("build", "Production Build", [
@@ -46,7 +46,8 @@ def main():
         'generateProject',
         'buildTargetIphoneSimulator',
         'buildTargetIphoneOS',
-        'staticAnalysis'
+        'staticAnalysis',
+        'packageArtifacts'
     ])
 
     options = buildOptions.parseArgs()
@@ -75,6 +76,8 @@ def main():
     if buildOptions.checkOption(options, 'staticAnalysis'):
         nfbuild.staticallyAnalyse(library_target,
                                   include_regex='source/.*')
+    if buildOptions.checkOption(options, "packageArtifacts"):
+        nfbuild.packageArtifacts()
 
 
 if __name__ == "__main__":
