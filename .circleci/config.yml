@@ -38,6 +38,9 @@ jobs:
       - run:
           name: Build OSX
           command: sh ci/osx.sh build
+      - store_artifacts:
+          path: build/output/libNFDriver.zip
+          destination: libNFDriver.zip
   buildmacios:
     macos:
       xcode: "9.0"
