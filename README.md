@@ -1,7 +1,7 @@
 <img alt="NFDriver" src="NFDriver.png" width="100%" max-width="888">
 
 [![CircleCI](https://circleci.com/gh/spotify/NFDriver/tree/master.svg?style=svg)](https://circleci.com/gh/spotify/NFDriver/tree/master)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/m2bn47mr3u26k6jq?svg=true)](https://ci.appveyor.com/project/8W9aG/nfdriver)
+[![Build status](https://ci.appveyor.com/api/projects/status/m2bn47mr3u26k6jq/branch/master?svg=true)](https://ci.appveyor.com/project/8W9aG/nfdriver/branch/master)
 [![License](https://img.shields.io/github/license/spotify/NFDriver.svg)](LICENSE)
 [![Spotify FOSS Slack](https://slackin.spotify.com/badge.svg)](https://slackin.spotify.com)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/spotify/nfdriver)](http://clayallsopp.github.io/readme-score?url=https://github.com/spotify/nfdriver)
@@ -10,9 +10,9 @@ A cross platform C++ audio driver with low latency.
 
 - [x] 📱 iOS 9.0+
 - [x] 💻 OS X 10.11+
-- [x] 🐧 Ubuntu Trusty 14.04+
-- [x] 🤖 Android NDK r17+
-- [x] 🖥️ Microsoft UWP
+- [x] 🐧 Ubuntu Trusty 14.04+ (clang 3.9 or gcc 4.9)
+- [x] 🤖 Android NDK r17b+
+- [x] 🖥️ Microsoft Windows Store 10
 
 ## Raison D'être :thought_balloon:
 During the development of innovative new audio experiences, we required a driver that would reliably work on a number of different platforms for our experimentation purposes. We noticed that at the time of development no such open source software existed (that managed to support all the platforms we were looking for), so we decided to create a new one. Given that the common language we could use across our experimentation platforms was C++ we decided on that as the language of choice for our interface. It is also worth noting that this wasn't just designed for front end use cases, and as such has the ability to write out WAV files to disk at above real time speeds to support backend rendering use cases.
