@@ -154,9 +154,9 @@ The project is available under the [Apache 2.0](http://www.apache.org/licenses/L
 - Icon in readme banner is “[Audio](https://thenounproject.com/search/?q=audio&i=1514798)” by Becris from the Noun Project.
 
 #### Contributors
-* Will Sackfield
+* [Will Sackfield](https://github.com/8W9aG)
 * Gabor Szanto
-* Julia Cox
-* Justin Sarma
+* [Julia Cox](https://github.com/astrocox)
+* [Justin Sarma](https://github.com/jsarma)
 * Noah Hilt
-* David Rubinstein
+* [David Rubinstein](https://github.com/drubinstein)
