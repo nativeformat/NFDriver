@@ -158,5 +158,5 @@ The project is available under the [Apache 2.0](http://www.apache.org/licenses/L
 * Gabor Szanto
 * [Julia Cox](https://github.com/astrocox)
 * [Justin Sarma](https://github.com/jsarma)
-* Noah Hilt
+* [Noah Hilt](https://github.com/noeski)
 * [David Rubinstein](https://github.com/drubinstein)
