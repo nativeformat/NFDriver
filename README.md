@@ -155,7 +155,7 @@ The project is available under the [Apache 2.0](http://www.apache.org/licenses/L
 
 #### Contributors
 * [Will Sackfield](https://github.com/8W9aG)
-* Gabor Szanto
+* [Gabor Szanto](https://github.com/superpoweredSDK) of [Superpowered](https://superpowered.com)
 * [Julia Cox](https://github.com/astrocox)
 * [Justin Sarma](https://github.com/jsarma)
 * [Noah Hilt](https://github.com/noeski)
