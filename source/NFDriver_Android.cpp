@@ -169,12 +169,12 @@ static void audioRenderCallback(SLAndroidSimpleBufferQueueItf caller, void *pCon
   if (internals->adapter->getFrames(internals->buffer, NULL, openslesBuffersize, 2)) {
     // Convert floats to 16-bit short int output.
     float *input = internals->buffer;
-    short int *output = (short int *)internals->buffer;
+    short int *output = reinterpret_cast<short int *>(internals->buffer);
     int n = openslesBuffersize;
 
     while (n--) {
-      *output++ = (short int)(*input++ * 32767.0f);
-      *output++ = (short int)(*input++ * 32767.0f);
+      *output++ = static_cast<short int>(*input++ * 32767.0f);
+      *output++ = static_cast<short int>(*input++ * 32767.0f);
     }
   } else
     memset(internals->buffer, 0,
@@ -265,7 +265,7 @@ static const char *setupOpenSLES(NFSoundCardDriverInternals *internals) {
     return "Output buffer queue RegisterCallback failed.";
 
   // Enqueue silence.
-  internals->buffer = (float *)malloc(openslesBuffersize * sizeof(float) * 2);
+  internals->buffer = reinterpret_cast<float *>(malloc(openslesBuffersize * sizeof(float) * 2));
   if (!internals->buffer) return "Out of memory in setupOpenSLES.";
   memset(internals->buffer, 0, openslesBuffersize * sizeof(short int) * 2);
   if ((*internals->outputBufferQueueInterface)

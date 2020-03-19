@@ -45,8 +45,9 @@ static void errorCallback(void *clientdata, const char *errorMessage, int errorC
 }
 
 static int renderCallback(void *clientdata, float *frames, int numberOfFrames) {
-  const float *samplerate = (float *)clientdata;
-  const float multiplier = (2.0f * float(M_PI) * *samplerate) / float(NF_DRIVER_SAMPLERATE);
+  const float *samplerate = reinterpret_cast<float *>(clientdata);
+  const float multiplier =
+      (2.0f * static_cast<float>(M_PI) * *samplerate) / static_cast<float>(NF_DRIVER_SAMPLERATE);
   static unsigned int sinewave = 0;
   float audio;
 

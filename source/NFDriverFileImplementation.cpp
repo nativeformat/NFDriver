@@ -118,7 +118,8 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   }
 
   // Write the size into the header and close the file.
-  unsigned int position = (unsigned int)((size_t)ftell(fhandle) - sizeof(header));
+  unsigned int position =
+      static_cast<unsigned int>((static_cast<size_t>(ftell(fhandle)) - sizeof(header)));
   fseek(fhandle, 40, SEEK_SET);
   fwrite(&position, 1, 4, fhandle);
   position += 36;
