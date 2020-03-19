@@ -18,6 +18,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+#include <string>
+
 #if __ANDROID__
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
@@ -122,7 +124,7 @@ void NFDriver::onAppLaunch(JNIEnv *env,
       errorCallback(clientdata, "Can't read the samplerate.", 0);
       return;
     }
-    openslesSamplerate = (int)atol(str);
+    openslesSamplerate = std::stol(str);
     env->ReleaseStringUTFChars((jstring)samplerateObj, str);
     if (openslesSamplerate < 0) {
       errorCallback(clientdata, "Can't parse the sample rate.", 0);
@@ -151,7 +153,7 @@ void NFDriver::onAppLaunch(JNIEnv *env,
       errorCallback(clientdata, "Can't read the buffer size.", 0);
       return;
     }
-    openslesBuffersize = (int)atol(str);
+    openslesBuffersize = std::stol(str);
     env->ReleaseStringUTFChars((jstring)buffersizeObj, str);
     if (openslesBuffersize < 0) {
       errorCallback(clientdata, "Can't parse the buffer size.", 0);

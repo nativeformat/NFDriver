@@ -23,6 +23,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #if __APPLE__
 #include <CoreFoundation/CFRunLoop.h>
@@ -86,7 +87,7 @@ int main(int argc, const char *argv[]) {
   const std::string samplerate_string = argv[1];
 #endif
 
-  float samplerate = static_cast<float>(atof(samplerate_string.c_str()));
+  float samplerate = std::stof(samplerate_string);
 
   nativeformat::driver::NFDriver *driver =
       nativeformat::driver::NFDriver::createNFDriver(&samplerate,
