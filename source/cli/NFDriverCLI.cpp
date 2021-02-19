@@ -23,6 +23,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #if __APPLE__
 #include <CoreFoundation/CFRunLoop.h>
@@ -44,8 +45,9 @@ static void errorCallback(void *clientdata, const char *errorMessage, int errorC
 }
 
 static int renderCallback(void *clientdata, float *frames, int numberOfFrames) {
-  const float *samplerate = (float *)clientdata;
-  const float multiplier = (2.0f * float(M_PI) * *samplerate) / float(NF_DRIVER_SAMPLERATE);
+  const float *samplerate = reinterpret_cast<float *>(clientdata);
+  const float multiplier =
+      (2.0f * static_cast<float>(M_PI) * *samplerate) / static_cast<float>(NF_DRIVER_SAMPLERATE);
   static unsigned int sinewave = 0;
   float audio;
 
@@ -86,7 +88,7 @@ int main(int argc, const char *argv[]) {
   const std::string samplerate_string = argv[1];
 #endif
 
-  float samplerate = static_cast<float>(atof(samplerate_string.c_str()));
+  float samplerate = std::stof(samplerate_string);
 
   nativeformat::driver::NFDriver *driver =
       nativeformat::driver::NFDriver::createNFDriver(&samplerate,

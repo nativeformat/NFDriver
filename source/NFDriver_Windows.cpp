@@ -182,11 +182,11 @@ class streamHandler : public Microsoft::WRL::RuntimeClass<
     UINT32 uBufferSize = 0;
     if (FAILED(internals->client->GetBufferSize(&uBufferSize)))
       return fail("GetBufferSize failed.");
-    internals->bufferSize = int(uBufferSize);
+    internals->bufferSize = static_cast<int>(uBufferSize);
 
     // Start the audio rendering.
     if (FAILED(internals->client->GetService(__uuidof(IAudioRenderClient),
-                                             (void **)&internals->renderClient)))
+                                             reinterpret_cast<void **>(&internals->renderClient))))
       return fail("GetService failed.");
     if (FAILED(MFCreateAsyncResult(nullptr, this, nullptr, &internals->sampleReadyAsyncResult)))
       return fail("MFCreateAsyncResult failed.");
