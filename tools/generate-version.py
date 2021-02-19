@@ -20,6 +20,8 @@
  * under the License.
 '''
 
+from __future__ import print_function
+
 import os
 import subprocess
 import sys
@@ -31,14 +33,14 @@ def main():
         output_dir = sys.argv[1]
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    print 'Generating nfdriver_generated_header.h in ' + output_dir
+    print('Generating nfdriver_generated_header.h in ' + output_dir)
     generated_header_filename = os.path.join(output_dir, 'nfdriver_generated_header.h')
     generated_header = open(generated_header_filename, 'w')
     generated_header.write('// This is a generated header from generate-version.py\n')
     cwd = os.getcwd()
     git_count = subprocess.check_output(['git', 'rev-list', '--count', 'HEAD'], cwd = cwd)
     git_describe = subprocess.check_output(['git', 'describe', '--always'], cwd = cwd)
-    generated_header.write('#define NFDRIVER_VERSION "' + git_count.strip() + '-' + git_describe.strip() + '"\n')
+    generated_header.write('#define NFDRIVER_VERSION "' + str(git_count.strip()) + '-' + str(git_describe.strip()) + '"\n')
 
 
 if __name__ == "__main__":
