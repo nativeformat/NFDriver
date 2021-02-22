@@ -81,7 +81,7 @@ typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames, int numberOfF
 /*!
  * \brief Callback called when NFDriver experiences an error.
  * \param clientdata Client specific data that gets used by the callback.
- * \param errorMessages Error message to print when this callback gets called.
+ * \param errorMessage Error message to print when this callback gets called.
  * \param errorCode Unique number (preferably) that's associated with the error message.
  */
 typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, int errorCode);
