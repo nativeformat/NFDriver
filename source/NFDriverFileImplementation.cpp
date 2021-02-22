@@ -58,7 +58,9 @@ void NFDriverFileImplementation::setPlaying(bool playing) {
 
   if (!playing) {
     _run = false;
-    _thread->join();
+    if (std::this_thread::get_id() != _thread->get_id()) {
+      _thread->join();
+    }
     _thread = nullptr;
   } else {
     _run = true;
@@ -102,9 +104,13 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   fwrite(&header, 1, sizeof(header), fhandle);
 
   // Rendering.
-  float buffer[NF_DRIVER_SAMPLE_BLOCK_SIZE * NF_DRIVER_CHANNELS];
+  const auto buffer_samples = NF_DRIVER_SAMPLE_BLOCK_SIZE * NF_DRIVER_CHANNELS;
+  float buffer[buffer_samples];
   size_t numFrames = 0;
   while (driver->_run) {
+    for (int i = 0; i < buffer_samples; ++i) {
+      buffer[i] = 0.0f;
+    }
     driver->_will_render_callback(driver->_clientdata);
     numFrames =
         (size_t)driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE);
