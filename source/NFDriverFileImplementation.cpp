@@ -58,7 +58,9 @@ void NFDriverFileImplementation::setPlaying(bool playing) {
 
   if (!playing) {
     _run = false;
-    _thread->join();
+    if (std::this_thread::get_id() != _thread->get_id()) {
+      _thread->join();
+    }
     _thread = nullptr;
   } else {
     _run = true;
