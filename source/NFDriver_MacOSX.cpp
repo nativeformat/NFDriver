@@ -85,10 +85,10 @@ static OSStatus audioOutputCallback(void *inRefCon,
 
   NFSoundCardDriverInternals *internals = (NFSoundCardDriverInternals *)inRefCon;
   bool silence = !internals->adapter->getFrames(
-      (float *)ioData->mBuffers[0].mData,
-      (float *)ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData,
-      (int)inNumberFrames,
-      (int)ioData->mNumberBuffers);
+      reinterpret_cast<float *>(ioData->mBuffers[0].mData),
+      reinterpret_cast<float *>(ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData),
+      static_cast<int>(inNumberFrames),
+      static_cast<int>(ioData->mNumberBuffers));
 
   if (silence) {
     *ioActionFlags |= kAudioUnitRenderAction_OutputIsSilence;
@@ -332,13 +332,14 @@ static void recreateAudioUnit(NFSoundCardDriverInternals *internals) {
 
     // Asking for the optimal buffer size. Core Audio can not guarantee it
     // though.
-    UInt32 numFrames = (UInt32)NFDriverAdapter::getOptimalNumberOfFrames((int)format.mSampleRate);
+    UInt32 numFrames =
+        (UInt32)NFDriverAdapter::getOptimalNumberOfFrames(static_cast<int>(format.mSampleRate));
     address = {kAudioDevicePropertyBufferFrameSize,
                kAudioObjectPropertyScopeGlobal,
                kAudioObjectPropertyElementMaster};
     AudioObjectSetPropertyData(device, &address, 0, NULL, sizeof(numFrames), &numFrames);
 
-    internals->adapter->setSamplerate((int)format.mSampleRate);
+    internals->adapter->setSamplerate(static_cast<int>(format.mSampleRate));
   } else
     dispatch_async(dispatch_get_main_queue(),
                    ^{  // Or call it on the main thread otherwise.
