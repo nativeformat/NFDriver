@@ -61,7 +61,7 @@ virtualenv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
-pip install pyyaml \
+pip3 install pyyaml \
              flake8 \
              cmakelint
 
