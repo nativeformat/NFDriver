@@ -20,6 +20,8 @@
  */
 #include <NFDriver/NFDriver.h>
 
+#include <cassert>
+
 #include "NFDriverAdapter.h"
 #include "NFDriverFileImplementation.h"
 #include "NFDriverFileMP3Implementation.h"
@@ -67,6 +69,9 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                             did_render_callback,
                                             output_destination);
     case OutputTypeMP3File:
+#if _WIN32
+      assert(false && "No support for MP3 file driver on windows.");
+#else
       return new NFDriverFileMP3Implementation(clientdata,
                                                stutter_callback,
                                                render_callback,
@@ -75,6 +80,7 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                                did_render_callback,
                                                output_destination,
                                                bitrateOption(options));
+#endif
   }
   return 0;
 }
