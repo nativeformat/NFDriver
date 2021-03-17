@@ -22,7 +22,9 @@
 
 #include <cstring>
 #include <cstdlib>
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 
 #include <lame.h>
 
@@ -77,6 +79,21 @@ void NFDriverFileMP3Implementation::setPlaying(bool playing) {
 void NFDriverFileMP3Implementation::run(NFDriverFileMP3Implementation *driver) {
     // Open LAME lib
     std::string lame_lib_path(getenv("LAME_DYLIB"));
+#if _WIN32
+    HINSTANCE lame_handle = LoadLibrary(lame_lib_path.c_str());
+    decltype(&lame_init) lame_init_dynamic = (decltype(&lame_init))GetProcAddress(lame_handle, "lame_init");
+    decltype(&lame_set_in_samplerate) lame_set_in_samplerate_dynamic = (decltype(&lame_set_in_samplerate))GetProcAddress(lame_handle,
+                                                                                                                         "lame_set_in_samplerate");
+    decltype(&lame_set_VBR) lame_set_VBR_dynamic = (decltype(&lame_set_VBR))GetProcAddress(lame_handle, "lame_set_VBR");
+    decltype(&lame_init_params) lame_init_params_dynamic = (decltype(&lame_init_params))GetProcAddress(lame_handle, "lame_init_params");
+    decltype(&lame_encode_buffer_interleaved_ieee_float) lame_encode_buffer_interleaved_ieee_float_dynamic = (decltype(&lame_encode_buffer_interleaved_ieee_float))GetProcAddress(lame_handle,
+                                                                                                                                                                                  "lame_encode_buffer_interleaved_ieee_float");
+    decltype(&lame_encode_flush) lame_encode_flush_dynamic = (decltype(&lame_encode_flush))GetProcAddress(lame_handle,
+                                                                                                          "lame_encode_flush");
+    decltype(&lame_close) lame_close_dynamic = (decltype(&lame_close))GetProcAddress(lame_handle, "lame_close");
+    decltype(&lame_set_mode) lame_set_mode_dynamic = (decltype(&lame_set_mode))GetProcAddress(lame_handle, "lame_set_mode");
+    decltype(&lame_set_VBR_mean_bitrate_kbps) lame_set_VBR_mean_bitrate_kbps_dynamic = (decltype(&lame_set_VBR_mean_bitrate_kbps))GetProcAddress(lame_handle, "lame_set_VBR_mean_bitrate_kbps");
+#else
     void *lame_handle = dlopen(lame_lib_path.c_str(), RTLD_LAZY);
     decltype(&lame_init) lame_init_dynamic = (decltype(&lame_init))dlsym(lame_handle, "lame_init");
     decltype(&lame_set_in_samplerate) lame_set_in_samplerate_dynamic = (decltype(&lame_set_in_samplerate))dlsym(lame_handle,
@@ -90,7 +107,8 @@ void NFDriverFileMP3Implementation::run(NFDriverFileMP3Implementation *driver) {
     decltype(&lame_close) lame_close_dynamic = (decltype(&lame_close))dlsym(lame_handle, "lame_close");
     decltype(&lame_set_mode) lame_set_mode_dynamic = (decltype(&lame_set_mode))dlsym(lame_handle, "lame_set_mode");
     decltype(&lame_set_VBR_mean_bitrate_kbps) lame_set_VBR_mean_bitrate_kbps_dynamic = (decltype(&lame_set_VBR_mean_bitrate_kbps))dlsym(lame_handle, "lame_set_VBR_mean_bitrate_kbps");
-    
+#endif
+
     // Open file
   FILE *fhandle = fopen(driver->_output_destination.c_str(), "wb");
   if (fhandle == nullptr) {
