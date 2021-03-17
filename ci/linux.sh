@@ -25,8 +25,8 @@ pwd
 
 # Install system dependencies
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends apt-utils
-sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get install -y --no-install-recommends apt-utils software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 clang-format-3.9 \
@@ -42,7 +42,6 @@ sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 python3-dev \
                                                 git \
                                                 unzip \
-                                                software-properties-common \
                                                 python-software-properties
 
 # Extra repo for gcc-4.9 so we don't have to use 4.8
