@@ -31,6 +31,7 @@ sudo apt-get install -y --no-install-recommends apt-utils \
                                                 ninja-build \
                                                 clang-3.9 \
                                                 libc++-dev \
+                                                python3.7 \
                                                 python-pip \
                                                 python-virtualenv \
                                                 wget \
@@ -61,9 +62,9 @@ virtualenv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
-pip3 install pyyaml \
-             flake8 \
-             cmakelint
+pip install pyyaml \
+            flake8 \
+            cmakelint
 
 # Execute our python build tools
 if [ -n "$BUILD_ANDROID" ]; then
