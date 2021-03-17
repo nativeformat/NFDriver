@@ -63,15 +63,10 @@ sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 python-dev \
                                                 python3-dev \
                                                 git \
-                                                unzip
+                                                unzip \
+                                                cmake
 
 sudo apt-get install -y --reinstall binutils
-
-
-# Install cmake 3.6.x
-wget https://cmake.org/files/v3.6/cmake-3.6.3-Linux-x86_64.sh
-chmod +x cmake-3.6.3-Linux-x86_64.sh
-sudo sh cmake-3.6.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 # Install virtualenv
 python3.7 -m venv nfdriver_env
