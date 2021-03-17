@@ -47,14 +47,12 @@ tar -xf "Python-$PYTHON_VERSION.tgz"
     make -j 8
     sudo make altinstall
 )
-sudo apt-get install -y --no-install-recommends python3-pip \
-                                                python3-setuptools \
+sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 libasound2-dev \
                                                 clang-format-3.9 \
                                                 ninja-build \
                                                 clang-3.9 \
                                                 libc++-dev \
-                                                python-pip \
                                                 python-virtualenv \
                                                 wget \
                                                 libyaml-dev \
