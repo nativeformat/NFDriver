@@ -64,7 +64,8 @@ sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 git \
                                                 unzip \
                                                 cmake \
-                                                git
+                                                git \
+                                                libc++abi-dev
 sudo apt-get install -y --reinstall binutils
 
 # Update submodules
