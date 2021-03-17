@@ -21,6 +21,10 @@
 # Exit on any non-zero status
 set -e
 
+# Update submodules
+git submodule sync
+git submodule update --init --recursive
+
 # Install system dependencies
 brew install clang-format
 brew install ninja
