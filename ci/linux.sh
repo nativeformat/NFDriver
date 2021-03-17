@@ -22,6 +22,10 @@
 set -e
 pwd
 
+# Install basics
+apt-get -q update
+apt-get install sudo
+
 
 # Install system dependencies
 export PYTHON_VERSION="3.7.3"
