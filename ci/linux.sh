@@ -24,19 +24,32 @@ pwd
 
 
 # Install system dependencies
+export PYTHON_VERSION="3.7.3"
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils software-properties-common
-sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get update
-sudo apt-get install -y libssl-dev \
-                        libncurses5-dev \
-                        libsqlite3-dev \
-                        libreadline-dev \
-                        libtk8.5 \
-                        libgdm-dev \
-                        libdb4o-cil-dev \
-                        libpcap-dev
-sudo apt-get install -y --no-install-recommends libasound2-dev \
+sudo apt-get install -y --no-install-recommends build-essential \
+                                                zlib1g-dev \
+                                                libncurses5-dev \
+                                                libgdbm-dev \
+                                                libnss3-dev \
+                                                libssl-dev \
+                                                libreadline-dev \
+                                                libffi-dev \
+                                                wget \
+                                                libbz2-dev \
+                                                libsqlite3-dev \
+                                                liblzma-dev
+wget --tries=5 "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz"
+tar -xf "Python-$PYTHON_VERSION.tgz"
+(
+    cd "Python-$PYTHON_VERSION"
+    ./configure --enable-loadable-sqlite-extensions
+    make -j 8
+    sudo make altinstall
+)
+sudo apt-get install -y --no-install-recommends python3-pip \
+                                                python3-setuptools \
+                                                libasound2-dev \
                                                 clang-format-3.9 \
                                                 ninja-build \
                                                 clang-3.9 \
