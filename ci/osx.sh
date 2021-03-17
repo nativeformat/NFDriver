@@ -23,8 +23,8 @@ set -e
 
 # Install system dependencies
 brew install clang-format
-brew install cmake
 brew install ninja
+brew install cmake
 
 # Install virtualenv
 virtualenv --python=$(which python3) nfdriver_env
