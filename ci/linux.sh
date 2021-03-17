@@ -24,6 +24,7 @@ pwd
 
 
 # Install system dependencies
+sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils \
                                                 libasound2-dev \
