@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018 Spotify AB.
+# Copyright (c) 2021 Spotify AB.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -21,6 +21,10 @@
 # Exit on any non-zero status
 set -e
 pwd
+
+# Update submodules
+git submodule sync
+git submodule update --init --recursive
 
 # Install basics
 apt-get -q update
