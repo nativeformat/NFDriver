@@ -95,8 +95,8 @@ def main():
 
     if buildOptions.checkOption(options, 'generateProject'):
         if buildOptions.checkOption(options, 'gnuToolchain'):
-            os.environ['CC'] = 'gcc-4.9'
-            os.environ['CXX'] = 'g++-4.9'
+            os.environ['CC'] = 'gcc-7.5'
+            os.environ['CXX'] = 'g++-7.5'
             nfbuild.generateProject(gcc=True)
         elif buildOptions.checkOption(options, 'llvmToolchain'):
             os.environ['CC'] = 'clang-3.9'
