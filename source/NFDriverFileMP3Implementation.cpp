@@ -151,7 +151,9 @@ void NFDriverFileMP3Implementation::run(NFDriverFileMP3Implementation *driver) {
     // Cleanup
     lame_close_dynamic(lame);
     fclose(fhandle);
+#ifndef _WIN32
     dlclose(lame_handle);
+#endif
 }
 
 }  // namespace driver
