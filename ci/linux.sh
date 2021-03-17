@@ -24,10 +24,11 @@ pwd
 
 
 # Install system dependencies
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends apt-utils
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends apt-utils \
-                                                libasound2-dev \
+sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 clang-format-3.9 \
                                                 ninja-build \
                                                 clang-3.9 \
