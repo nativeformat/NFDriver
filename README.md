@@ -38,10 +38,10 @@ Our support table looks like so:
 
 In terms of bouncing to files, our support table looks like so:
 
-| Format | Options       | Comments                                                       |
-| ------ | ------------- | -------------------------------------------------------------- |
-| WAV    |               | Writes a 32 bit IEEE Float WAV file to the output destination. |
-| MP3    | bitrate : int | Writes an MP3 file to the output destination.                  |
+| Format | Options       | Comments                                                       | Support                           |
+| ------ | ------------- | -------------------------------------------------------------- | --------------------------------- |
+| WAV    |               | Writes a 32 bit IEEE Float WAV file to the output destination. | iOS, OSX, Linux, Android, Windows |
+| MP3    | bitrate : int | Writes an MP3 file to the output destination.                  | OSX, Linux                        |
 
 Note that using MP3 will require you to define the environment variable `LAME_DYLIB`. Make sure you allow your users the option to replace this library to comply with its [LGPL License](https://lame.sourceforge.io/license.txt). We do not statically link against LAME so we do not take on its LGPL status and retain our MIT license.
 
