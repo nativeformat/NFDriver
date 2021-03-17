@@ -54,7 +54,6 @@ sudo apt-get install -y --no-install-recommends python3-pip \
                                                 ninja-build \
                                                 clang-3.9 \
                                                 libc++-dev \
-                                                python3.7-dev \
                                                 python3.7 \
                                                 python-pip \
                                                 python-virtualenv \
@@ -64,8 +63,7 @@ sudo apt-get install -y --no-install-recommends python3-pip \
                                                 python3-dev \
                                                 git \
                                                 unzip \
-                                                python-software-properties \
-                                                python3.7-venv
+                                                python-software-properties
 
 # Extra repo for gcc-4.9 so we don't have to use 4.8
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
