@@ -83,9 +83,9 @@ python3.7 -m venv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
-pip install pyyaml \
-            flake8 \
-            cmakelint
+pip3 install pyyaml \
+             flake8 \
+             cmakelint
 
 # Execute our python build tools
 if [ -n "$BUILD_ANDROID" ]; then
