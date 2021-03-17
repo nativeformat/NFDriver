@@ -10,19 +10,22 @@ A cross platform C++ audio driver with low latency.
 
 - [x] 📱 iOS 9.0+
 - [x] 💻 OS X 10.11+
-- [x] 🐧 Ubuntu Trusty 14.04+ (clang 3.9 or gcc 4.9)
+- [x] 🐧 Ubuntu Bionic 18.04+ (clang 3.9 or gcc 7.5)
 - [x] 🤖 Android NDK r17b+
 - [x] 🖥️ Microsoft Windows Store 10
 
 ## Raison D'être :thought_balloon:
+
 During the development of innovative new audio experiences, we required a driver that would reliably work on a number of different platforms for our experimentation purposes. We noticed that at the time of development no such open source software existed (that managed to support all the platforms we were looking for), so we decided to create a new one. Given that the common language we could use across our experimentation platforms was C++ we decided on that as the language of choice for our interface. It is also worth noting that this wasn't just designed for front end use cases, and as such has the ability to write out WAV files to disk at above real time speeds to support backend rendering use cases.
 
 ## Architecture :triangular_ruler:
+
 `NFDriver` is designed as a common C++ interface to write information to different systems sound drivers in a low latency. The API simply allows you to create a driver that will then call the callbacks fed into it every time a new block of audio data is requested. It uses very basic C functions in order to reduce the amount of latency when interfacing to it, and to prevent unwanted locks in some implementations of the C++ 11 STL. It always has a fixed block size of 1024 samples it will ask for at any one time. It also has the ability to report errors, stutters, and give callbacks before and after the rendering of a block.
 
 You may notice it has a fixed samplerate and number of channels. This was done due to this being the standard configuration in music output, so in order to lower the complexity of the API and the way each wrapper acts with the system we decided to hardcode these values.
 
 It is designed with 2 major layers:
+
 - **The Normalisation layer**, which takes input and resamples it to whatever channel format and samplerate the driver expects.
 - **The System Layer**, which interfaces to the operating systems audio drivers.
 
@@ -41,7 +44,7 @@ In terms of bouncing to files, our support table looks like so:
 | Format | Options       | Comments                                                       | Support                           |
 | ------ | ------------- | -------------------------------------------------------------- | --------------------------------- |
 | WAV    |               | Writes a 32 bit IEEE Float WAV file to the output destination. | iOS, OSX, Linux, Android, Windows |
-| MP3    | bitrate : int | Writes an MP3 file to the output destination.                  | OSX, Linux                        |
+| MP3    | bitrate : int | Writes an MP3 file to the output destination.                  | iOS, OSX, Linux, Android          |
 
 Note that using MP3 will require you to define the environment variable `LAME_DYLIB`. Make sure you allow your users the option to replace this library to comply with its [LGPL License](https://lame.sourceforge.io/license.txt). We do not statically link against LAME so we do not take on its LGPL status and retain our MIT license.
 
