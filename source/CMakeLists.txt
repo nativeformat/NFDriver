@@ -22,15 +22,15 @@ set(SOURCE_FILES
   NFDriverAdapter.cpp
   NFDriver.cpp
   NFDriverFileImplementation.h
-  NFDriverFileImplementation.cpp
-  NFDriverFileMP3Implementation.h
-  NFDriverFileMP3Implementation.cpp)
+  NFDriverFileImplementation.cpp)
 set(LINK_LIBRARIES)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND NOT ANDROID)
   list(APPEND
     SOURCE_FILES
-    NFDriver_Linux.cpp)
+    NFDriver_Linux.cpp
+    NFDriverFileMP3Implementation.h
+    NFDriverFileMP3Implementation.cpp)
   find_package(ALSA REQUIRED)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
@@ -43,7 +43,9 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT IOS AND NOT ANDROID)
   list(APPEND
     SOURCE_FILES
-    NFDriver_MacOSX.cpp)
+    NFDriver_MacOSX.cpp
+    NFDriverFileMP3Implementation.h
+    NFDriverFileMP3Implementation.cpp)
   find_library(AUDIO_UNIT AudioUnit)
   find_library(CORE_AUDIO CoreAudio)
   list(APPEND
