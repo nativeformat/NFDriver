@@ -34,14 +34,14 @@ class NFDriverFileMP3Implementation : public NFDriver {
   bool isPlaying() const;
   void setPlaying(bool playing);
 
-    NFDriverFileMP3Implementation(void *clientdata,
-                                  NF_STUTTER_CALLBACK stutter_callback,
-                                  NF_RENDER_CALLBACK render_callback,
-                                  NF_ERROR_CALLBACK error_callback,
-                                  NF_WILL_RENDER_CALLBACK will_render_callback,
-                                  NF_DID_RENDER_CALLBACK did_render_callback,
-                                  const char *output_destination,
-                                  int bitrate);
+  NFDriverFileMP3Implementation(void *clientdata,
+                                NF_STUTTER_CALLBACK stutter_callback,
+                                NF_RENDER_CALLBACK render_callback,
+                                NF_ERROR_CALLBACK error_callback,
+                                NF_WILL_RENDER_CALLBACK will_render_callback,
+                                NF_DID_RENDER_CALLBACK did_render_callback,
+                                const char *output_destination,
+                                int bitrate);
   ~NFDriverFileMP3Implementation();
 
  private:

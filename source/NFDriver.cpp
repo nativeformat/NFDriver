@@ -37,10 +37,10 @@ const char *version() {
 extern const std::string NF_DRIVER_BITRATE_KEY = "bitrate";
 
 int bitrateOption(const std::map<std::string, std::string> &options) {
-    if (options.count(NF_DRIVER_BITRATE_KEY)) {
-        return std::stoi(options.at(NF_DRIVER_BITRATE_KEY));
-    }
-    return 128;
+  if (options.count(NF_DRIVER_BITRATE_KEY)) {
+    return std::stoi(options.at(NF_DRIVER_BITRATE_KEY));
+  }
+  return 128;
 }
 
 NFDriver *NFDriver::createNFDriver(void *clientdata,
