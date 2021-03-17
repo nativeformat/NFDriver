@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Spotify AB.
+ * Copyright (c) 2021 Spotify AB.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -25,6 +25,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #if __APPLE__
 #include <CoreFoundation/CFRunLoop.h>
@@ -37,6 +38,10 @@
 #include <jni.h>
 #endif
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static void stutterCallback(void *clientdata) {
   printf("stutter\n");
 }
@@ -46,8 +51,9 @@ static void errorCallback(void *clientdata, const char *errorMessage, int errorC
 }
 
 static int renderCallback(void *clientdata, float *frames, int numberOfFrames) {
-  const float *samplerate = (float *)clientdata;
-  const float multiplier = (2.0f * float(M_PI) * *samplerate) / float(NF_DRIVER_SAMPLERATE);
+  const float *samplerate = reinterpret_cast<float *>(clientdata);
+  const float multiplier =
+      (2.0f * static_cast<float>(M_PI) * *samplerate) / static_cast<float>(NF_DRIVER_SAMPLERATE);
   static unsigned int sinewave = 0;
   float audio;
 
@@ -88,7 +94,7 @@ int main(int argc, const char *argv[]) {
   const std::string samplerate_string = argv[1];
 #endif
 
-  float samplerate = static_cast<float>(atof(samplerate_string.c_str()));
+  float samplerate = std::stof(samplerate_string);
 
   nativeformat::driver::NFDriver *driver =
       nativeformat::driver::NFDriver::createNFDriver(&samplerate,
@@ -108,6 +114,8 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl << "Press a key to exit...";
   std::cin.get();
 #endif
+
+  driver->setPlaying(false);
 
 #ifndef __ANDROID__
   return 0;

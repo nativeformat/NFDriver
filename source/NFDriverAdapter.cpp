@@ -118,15 +118,15 @@ static void makeOutput(
                                  // Can happen with Linux only.
     float *output = *outputLeft;
     *outputLeft += numFrames * numChannels;
-    memset(output, 0, (size_t)(numFrames * numChannels) * sizeof(float));
+    memset(output, 0, static_cast<size_t>(numFrames * numChannels) * sizeof(float));
 
     while (numFrames--) {
-      *((uint64_t *)output) = *((uint64_t *)input);
+      *(reinterpret_cast<uint64_t *>(output)) = *(reinterpret_cast<uint64_t *>(input));
       output += numChannels;
       input += 2;
     }
   } else {  // Stereo interleaved output.
-    memcpy(*outputLeft, input, (size_t)numFrames * sizeof(float) * 2);
+    memcpy(*outputLeft, input, static_cast<size_t>(numFrames) * sizeof(float) * 2);
     *outputLeft += numFrames * 2;
   }
 }
@@ -165,12 +165,13 @@ NFDriverAdapter::NFDriverAdapter(void *clientdata,
   internals->bufferCapacityFrames =
       numBlocks * NF_DRIVER_SAMPLE_BLOCK_SIZE;  // Will be around 1 second big.
   internals->interleavedBuffer =
-      (float *)malloc((size_t)internals->bufferCapacityFrames * sizeof(float) *
-                      2);  // 344 kb at 44100 Hz and 1024 frames.
+      reinterpret_cast<float *>(malloc(static_cast<size_t>(internals->bufferCapacityFrames) *
+                                       sizeof(float) * 2));  // 344 kb at 44100 Hz and 1024 frames.
   if (!internals->interleavedBuffer)
     error_callback(clientdata, "Out of memory in NFDriverAdapter.", 0);
 
-  internals->resampler.input = (uint64_t *)malloc(NF_DRIVER_SAMPLE_BLOCK_SIZE * sizeof(uint64_t));
+  internals->resampler.input =
+      reinterpret_cast<uint64_t *>(malloc(NF_DRIVER_SAMPLE_BLOCK_SIZE * sizeof(uint64_t)));
   if (!internals->resampler.input)
     error_callback(clientdata, "Out of memory in NFDriverAdapter.", 0);
 }
@@ -193,10 +194,12 @@ bool NFDriverAdapter::getFrames(float *outputLeft,
       ATOMICZERO(internals->nextSamplerate);  // Make it zero, return with the previous value.
   if (nextSamplerate != 0) {
     internals->needsResampling = (nextSamplerate != NF_DRIVER_SAMPLERATE);
-    internals->resampler.rate = float(NF_DRIVER_SAMPLERATE) / float(nextSamplerate);
+    internals->resampler.rate =
+        static_cast<float>(NF_DRIVER_SAMPLERATE) / static_cast<float>(nextSamplerate);
     internals->bufferCapacityToEndNeeded =
-        internals->needsResampling ? int((float(nextSamplerate) / float(NF_DRIVER_SAMPLERATE)) *
-                                         (NF_DRIVER_SAMPLE_BLOCK_SIZE + 2))
+        internals->needsResampling ? static_cast<int>((static_cast<float>(nextSamplerate) /
+                                                       static_cast<float>(NF_DRIVER_SAMPLERATE)) *
+                                                      (NF_DRIVER_SAMPLE_BLOCK_SIZE + 2))
                                    : NF_DRIVER_SAMPLE_BLOCK_SIZE;
   }
 
@@ -210,7 +213,7 @@ bool NFDriverAdapter::getFrames(float *outputLeft,
       if (internals->framesInBuffer > 0)
         memmove(internals->interleavedBuffer,
                 internals->interleavedBuffer + internals->readPositionFrames * 2,
-                (size_t)internals->framesInBuffer * sizeof(float) * 2);
+                static_cast<size_t>(internals->framesInBuffer) * sizeof(float) * 2);
       internals->readPositionFrames = 0;
       internals->writePositionFrames = internals->framesInBuffer;
     }
@@ -225,8 +228,10 @@ bool NFDriverAdapter::getFrames(float *outputLeft,
       if (framesRendered <= 0) break;
     } else {  // Resampling needed, render into the resampler's input buffer, the
               // resample into our buffer.
-      framesRendered = internals->renderCallback(
-          internals->clientdata, (float *)internals->resampler.input, NF_DRIVER_SAMPLE_BLOCK_SIZE);
+      framesRendered =
+          internals->renderCallback(internals->clientdata,
+                                    reinterpret_cast<float *>(internals->resampler.input),
+                                    NF_DRIVER_SAMPLE_BLOCK_SIZE);
       if (framesRendered <= 0) break;
       framesRendered = resample(internals->interleavedBuffer + internals->writePositionFrames * 2,
                                 &internals->resampler,
@@ -276,7 +281,7 @@ void NFDriverAdapter::setSamplerate(int samplerate) {
 int NFDriverAdapter::getOptimalNumberOfFrames(int samplerate) {
   if (samplerate == NF_DRIVER_SAMPLERATE) return NF_DRIVER_SAMPLE_BLOCK_SIZE;
 
-  float rate = float(samplerate) / float(NF_DRIVER_SAMPLERATE);
+  float rate = static_cast<float>(samplerate) / static_cast<float>(NF_DRIVER_SAMPLERATE);
   return int(NF_DRIVER_SAMPLE_BLOCK_SIZE * rate);
 }
 

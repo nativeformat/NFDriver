@@ -41,7 +41,7 @@ class NFBuild(object):
         self.android = False
 
     def build_print(self, print_string):
-        print print_string
+        print(print_string)
         sys.stdout.flush()
 
     def makeBuildDirectory(self):
@@ -68,7 +68,7 @@ class NFBuild(object):
         if make_inline_changes:
             clang_format_call.append('-i')
         clang_format_call.append(filepath)
-        new_source = subprocess.check_output(clang_format_call)
+        new_source = subprocess.check_output(clang_format_call).decode()
         if current_source != new_source and not make_inline_changes:
             self.build_print(
                 filepath + " failed C++ lint, file should look like:")

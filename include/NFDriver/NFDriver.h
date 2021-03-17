@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Spotify AB.
+ * Copyright (c) 2021 Spotify AB.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -20,6 +20,9 @@
  */
 #pragma once
 
+#include <map>
+#include <string>
+
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define _USE_MATH_DEFINES
@@ -34,6 +37,8 @@
 #include <jni.h>
 #endif
 
+#define OutputTypeWAV32 OutputTypeFile
+
 namespace nativeformat {
 namespace driver {
 
@@ -41,7 +46,8 @@ namespace driver {
 /*! This enum will define the output destination. */
 typedef enum {
   OutputTypeSoundCard, /*!< Output to hardware (the local sound card). */
-  OutputTypeFile       /* Output to a file. */
+  OutputTypeFile,      /* Output to a file. */
+  OutputTypeMP3File    /* Output to an MP3 file at 96 kbps. */
 } OutputType;
 
 /*! Number of samples to process at a time */
@@ -81,7 +87,7 @@ typedef int (*NF_RENDER_CALLBACK)(void *clientdata, float *frames, int numberOfF
 /*!
  * \brief Callback called when NFDriver experiences an error.
  * \param clientdata Client specific data that gets used by the callback.
- * \param errorMessages Error message to print when this callback gets called.
+ * \param errorMessage Error message to print when this callback gets called.
  * \param errorCode Unique number (preferably) that's associated with the error message.
  */
 typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, int errorCode);
@@ -92,6 +98,8 @@ typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, in
  * \return The version, for example 1.0 in use
  */
 extern const char *version();
+/// The key to use when specifying the bitrate to the driver.
+extern const std::string NF_DRIVER_BITRATE_KEY;
 
 /*!
  * Interface used tracking state of the audio output.
@@ -144,6 +152,7 @@ class NFDriver {
    * \param outputType Desired output destination.
    * \param output_destination Name of output destination if it is a
    *                           named device, file etc.
+   * \param options A map containing options in key value form.
    * \return Instance of NFDriver.
    */
   static NFDriver *createNFDriver(void *clientdata,
@@ -153,7 +162,8 @@ class NFDriver {
                                   NF_WILL_RENDER_CALLBACK will_render_callback,
                                   NF_DID_RENDER_CALLBACK did_render_callback,
                                   OutputType outputType,
-                                  const char *output_destination = 0);
+                                  const char *output_destination = nullptr,
+                                  std::map<std::string, std::string> options = {});
 };
 
 }  // namespace driver
