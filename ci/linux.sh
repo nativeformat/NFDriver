@@ -41,6 +41,7 @@ sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 ninja-build \
                                                 clang-3.9 \
                                                 libc++-dev \
+                                                python3.7-dev \
                                                 python3.7 \
                                                 python-pip \
                                                 python-virtualenv \
