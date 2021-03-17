@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Spotify AB.
+ * Copyright (c) 2021 Spotify AB.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -22,6 +22,7 @@
 
 #include "NFDriverAdapter.h"
 #include "NFDriverFileImplementation.h"
+#include "NFDriverFileMP3Implementation.h"
 #include "nfdriver_generated_header.h"
 
 namespace nativeformat {
@@ -31,15 +32,25 @@ const char *version() {
   return NFDRIVER_VERSION;
 }
 
+extern const std::string NF_DRIVER_BITRATE_KEY = "bitrate";
+
+int bitrateOption(const std::map<std::string, std::string> &options) {
+    if (options.count(NF_DRIVER_BITRATE_KEY)) {
+        return std::stoi(options.at(NF_DRIVER_BITRATE_KEY));
+    }
+    return 128;
+}
+
 NFDriver *NFDriver::createNFDriver(void *clientdata,
                                    NF_STUTTER_CALLBACK stutter_callback,
                                    NF_RENDER_CALLBACK render_callback,
                                    NF_ERROR_CALLBACK error_callback,
                                    NF_WILL_RENDER_CALLBACK will_render_callback,
                                    NF_DID_RENDER_CALLBACK did_render_callback,
-                                   OutputType outputType,
-                                   const char *output_destination) {
-  switch (outputType) {
+                                   OutputType output_type,
+                                   const char *output_destination,
+                                   std::map<std::string, std::string> options) {
+  switch (output_type) {
     case OutputTypeSoundCard:
       return new NFSoundCardDriver(clientdata,
                                    stutter_callback,
@@ -55,6 +66,15 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                             will_render_callback,
                                             did_render_callback,
                                             output_destination);
+    case OutputTypeMP3File:
+      return new NFDriverFileMP3Implementation(clientdata,
+                                               stutter_callback,
+                                               render_callback,
+                                               error_callback,
+                                               will_render_callback,
+                                               did_render_callback,
+                                               output_destination,
+                                               bitrateOption(options));
   }
   return 0;
 }

@@ -22,7 +22,9 @@ set(SOURCE_FILES
   NFDriverAdapter.cpp
   NFDriver.cpp
   NFDriverFileImplementation.h
-  NFDriverFileImplementation.cpp)
+  NFDriverFileImplementation.cpp
+  NFDriverFileMP3Implementation.h
+  NFDriverFileMP3Implementation.cpp)
 set(LINK_LIBRARIES)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND NOT ANDROID)
@@ -90,7 +92,8 @@ add_library(NFDriver STATIC ${SOURCE_FILES})
 target_include_directories(NFDriver
   PUBLIC
   ../include
-  ${CMAKE_BINARY_DIR}/output)
+  ${CMAKE_BINARY_DIR}/output
+  ../libraries/lame/include)
 target_link_libraries(NFDriver ${LINK_LIBRARIES})
 
 if(NOT ANDROID)

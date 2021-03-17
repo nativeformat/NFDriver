@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Spotify AB.
+ * Copyright (c) 2021 Spotify AB.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -108,6 +108,8 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl << "Press a key to exit...";
   std::cin.get();
 #endif
+
+  driver->setPlaying(false);
 
 #ifndef __ANDROID__
   return 0;
