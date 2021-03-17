@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018 Spotify AB.
+# Copyright (c) 2021 Spotify AB.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -27,7 +27,7 @@ brew install ninja
 brew install cmake
 
 # Install virtualenv
-virtualenv --python=$(which python3) nfdriver_env
+python3 -m venv nfdriver_env
 source nfdriver_env/bin/activate
 
 # Install Python Packages
