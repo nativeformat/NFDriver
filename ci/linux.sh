@@ -22,14 +22,9 @@
 set -e
 pwd
 
-# Update submodules
-git submodule sync
-git submodule update --init --recursive
-
 # Install basics
 apt-get -q update
 apt-get install sudo
-
 
 # Install system dependencies
 export PYTHON_VERSION="3.7.3"
@@ -68,9 +63,13 @@ sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 python3-dev \
                                                 git \
                                                 unzip \
-                                                cmake
-
+                                                cmake \
+                                                git
 sudo apt-get install -y --reinstall binutils
+
+# Update submodules
+git submodule sync
+git submodule update --init --recursive
 
 # Install virtualenv
 python3.7 -m venv nfdriver_env
