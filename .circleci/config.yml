@@ -38,7 +38,7 @@ jobs:
           destination: libNFDriver-androidArm64.zip
   buildmac:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
       - run:
@@ -49,7 +49,7 @@ jobs:
           destination: libNFDriver.zip
   buildmacios:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
       - run:
@@ -60,7 +60,7 @@ jobs:
           destination: libNFDriver.zip
   buildmacandroid:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
       - run:
