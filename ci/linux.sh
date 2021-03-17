@@ -24,7 +24,7 @@ pwd
 
 
 # Install system dependencies
-export PYTHON_VERSION="3.7.3"
+export PYTHON_VERSION="3.6.0"
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils software-properties-common
 sudo apt-get install -y --no-install-recommends build-essential \
