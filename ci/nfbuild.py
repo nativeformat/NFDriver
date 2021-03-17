@@ -41,7 +41,7 @@ class NFBuild(object):
         self.android = False
 
     def build_print(self, print_string):
-        print print_string
+        print(print_string)
         sys.stdout.flush()
 
     def makeBuildDirectory(self):
