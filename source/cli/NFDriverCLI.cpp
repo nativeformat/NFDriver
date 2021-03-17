@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Spotify AB.
+ * Copyright (c) 2021 Spotify AB.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -34,6 +34,10 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #include <jni.h>
+#endif
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
 
 static void stutterCallback(void *clientdata) {
@@ -108,6 +112,8 @@ int main(int argc, const char *argv[]) {
   std::cout << std::endl << "Press a key to exit...";
   std::cin.get();
 #endif
+
+  driver->setPlaying(false);
 
 #ifndef __ANDROID__
   return 0;

@@ -2,7 +2,7 @@ version: 2
 jobs:
   buildlinuxclang:
     docker:
-      - image: ubuntu:trusty
+      - image: ubuntu:bionic
     steps:
       - checkout
       - run:
@@ -13,7 +13,7 @@ jobs:
           destination: libNFDriver.zip
   buildlinuxgcc:
     docker:
-      - image: ubuntu:trusty
+      - image: ubuntu:bionic
     steps:
       - checkout
       - run:
@@ -24,7 +24,7 @@ jobs:
           destination: libNFDriver.zip
   buildlinuxandroid:
     docker:
-      - image: ubuntu:trusty
+      - image: ubuntu:bionic
     steps:
       - checkout
       - run:
@@ -38,7 +38,7 @@ jobs:
           destination: libNFDriver-androidArm64.zip
   buildmac:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
       - run:
@@ -49,7 +49,7 @@ jobs:
           destination: libNFDriver.zip
   buildmacios:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
       - run:
@@ -60,9 +60,14 @@ jobs:
           destination: libNFDriver.zip
   buildmacandroid:
     macos:
-      xcode: "9.0"
+      xcode: "11.5.0"
     steps:
       - checkout
+      - run: brew update
+      - run: git submodule sync
+      - run: git submodule update --init --recursive
+      # Android NDK does not pass.
+      - run: sudo spctl --master-disable
       - run:
           name: Build Android
           command: BUILD_ANDROID=1 sh ci/osx.sh build

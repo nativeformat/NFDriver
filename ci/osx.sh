@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018 Spotify AB.
+# Copyright (c) 2021 Spotify AB.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -21,26 +21,30 @@
 # Exit on any non-zero status
 set -e
 
+# Update submodules
+git submodule sync
+git submodule update --init --recursive
+
 # Install system dependencies
 brew install clang-format
-brew install cmake
 brew install ninja
+brew install cmake
 
 # Install virtualenv
-virtualenv --python=$(which python2) nfdriver_env
+python3 -m venv nfdriver_env
 source nfdriver_env/bin/activate
 
 # Install Python Packages
-pip install pyyaml
-pip install flake8
-pip install cmakelint
+pip3 install pyyaml
+pip3 install flake8
+pip3 install cmakelint
 
 # Execute our python build tools
 if [ -n "$BUILD_IOS" ]; then
     python ci/ios.py "$@"
 else
     if [ -n "$BUILD_ANDROID" ]; then
-    	brew cask install android-ndk
+    	brew install android-ndk
 
         python ci/android.py "$@"
     else

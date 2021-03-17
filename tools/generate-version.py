@@ -38,8 +38,8 @@ def main():
     generated_header = open(generated_header_filename, 'w')
     generated_header.write('// This is a generated header from generate-version.py\n')
     cwd = os.getcwd()
-    git_count = subprocess.check_output(['git', 'rev-list', '--count', 'HEAD'], cwd = cwd)
-    git_describe = subprocess.check_output(['git', 'describe', '--always'], cwd = cwd)
+    git_count = subprocess.check_output(['git', 'rev-list', '--count', 'HEAD'], cwd = cwd).decode()
+    git_describe = subprocess.check_output(['git', 'describe', '--always'], cwd = cwd).decode()
     generated_header.write('#define NFDRIVER_VERSION "' + str(git_count.strip()) + '-' + str(git_describe.strip()) + '"\n')
 
 
