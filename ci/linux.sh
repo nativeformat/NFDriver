@@ -28,6 +28,14 @@ sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils software-properties-common
 sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt-get update
+sudo apt-get install -y libssl-dev \
+                        libncurses5-dev \
+                        libsqlite3-dev \
+                        libreadline-dev \
+                        libtk8.5 \
+                        libgdm-dev \
+                        libdb4o-cil-dev \
+                        libpcap-dev
 sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 clang-format-3.9 \
                                                 ninja-build \
