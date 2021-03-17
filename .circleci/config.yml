@@ -63,6 +63,11 @@ jobs:
       xcode: "11.5.0"
     steps:
       - checkout
+      - run: brew update
+      - run: git submodule sync
+      - run: git submodule update --init --recursive
+      # Android NDK does not pass.
+      - run: sudo spctl --master-disable
       - run:
           name: Build Android
           command: BUILD_ANDROID=1 sh ci/osx.sh build
