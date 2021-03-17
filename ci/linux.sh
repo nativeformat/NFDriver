@@ -42,7 +42,8 @@ sudo apt-get install -y --no-install-recommends libasound2-dev \
                                                 python3-dev \
                                                 git \
                                                 unzip \
-                                                python-software-properties
+                                                python-software-properties \
+                                                python3.7-venv
 
 # Extra repo for gcc-4.9 so we don't have to use 4.8
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
