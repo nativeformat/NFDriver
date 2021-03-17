@@ -63,8 +63,7 @@ sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 python-dev \
                                                 python3-dev \
                                                 git \
-                                                unzip \
-                                                python-software-properties
+                                                unzip
 
 # Extra repo for gcc-4.9 so we don't have to use 4.8
 sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
