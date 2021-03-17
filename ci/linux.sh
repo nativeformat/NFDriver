@@ -54,7 +54,6 @@ sudo apt-get install -y --no-install-recommends python3-pip \
                                                 ninja-build \
                                                 clang-3.9 \
                                                 libc++-dev \
-                                                python3.7 \
                                                 python-pip \
                                                 python-virtualenv \
                                                 wget \
