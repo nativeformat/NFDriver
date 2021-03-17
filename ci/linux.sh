@@ -65,12 +65,6 @@ sudo apt-get install -y --no-install-recommends python3-setuptools \
                                                 git \
                                                 unzip
 
-# Extra repo for gcc-4.9 so we don't have to use 4.8
-sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-sudo apt-get install -y --no-install-recommends gcc-4.9 \
-                                                g++-4.9 
-
 sudo apt-get install -y --reinstall binutils
 
 
