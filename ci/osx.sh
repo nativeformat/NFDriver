@@ -31,9 +31,9 @@ virtualenv --python=$(which python3) nfdriver_env
 source nfdriver_env/bin/activate
 
 # Install Python Packages
-pip install pyyaml
-pip install flake8
-pip install cmakelint
+pip3 install pyyaml
+pip3 install flake8
+pip3 install cmakelint
 
 # Execute our python build tools
 if [ -n "$BUILD_IOS" ]; then
