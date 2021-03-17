@@ -59,7 +59,7 @@ chmod +x cmake-3.6.3-Linux-x86_64.sh
 sudo sh cmake-3.6.3-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 # Install virtualenv
-virtualenv nfdriver_env
+python3.7 -m venv nfdriver_env
 . nfdriver_env/bin/activate
 
 # Install Python Packages
