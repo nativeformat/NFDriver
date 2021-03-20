@@ -28,20 +28,25 @@ set(LINK_LIBRARIES)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND NOT ANDROID)
   list(APPEND
     SOURCE_FILES
-    NFDriver_Linux.cpp)
+    NFDriver_Linux.cpp
+    NFDriverFileMP3Implementation.h
+    NFDriverFileMP3Implementation.cpp)
   find_package(ALSA REQUIRED)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
   list(APPEND
     LINK_LIBRARIES
     ${ALSA_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT})
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_DL_LIBS})
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT IOS AND NOT ANDROID)
   list(APPEND
     SOURCE_FILES
-    NFDriver_MacOSX.cpp)
+    NFDriver_MacOSX.cpp
+    NFDriverFileMP3Implementation.h
+    NFDriverFileMP3Implementation.cpp)
   find_library(AUDIO_UNIT AudioUnit)
   find_library(CORE_AUDIO CoreAudio)
   list(APPEND
@@ -90,7 +95,8 @@ add_library(NFDriver STATIC ${SOURCE_FILES})
 target_include_directories(NFDriver
   PUBLIC
   ../include
-  ${CMAKE_BINARY_DIR}/output)
+  ${CMAKE_BINARY_DIR}/output
+  ../libraries/lame/include)
 target_link_libraries(NFDriver ${LINK_LIBRARIES})
 
 if(NOT ANDROID)
