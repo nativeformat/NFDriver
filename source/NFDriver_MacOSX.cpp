@@ -295,6 +295,7 @@ static void recreateAudioUnit(NFSoundCardDriverInternals *internals) {
     format.mFramesPerPacket = 1;
     format.mBytesPerFrame = 4;
     format.mBytesPerPacket = 4;
+    format.mSampleRate = NF_DRIVER_SAMPLERATE;
     if (format.mChannelsPerFrame > 2)
       format.mChannelsPerFrame = 2;  // We are open to provide 1 or 2 channels.
     if (AudioUnitSetProperty(unit,
