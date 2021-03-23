@@ -55,7 +55,6 @@ NFDriverFileWAVHeaderAudioFormat wavsizeOption(const std::map<std::string, std::
             default:
                 assert(false && "Invalid wav size option, must be 16 or 32");
         }
-        return ;
     }
     return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
 }
