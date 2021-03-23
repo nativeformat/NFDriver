@@ -86,11 +86,13 @@ static OSStatus audioOutputCallback(void *inRefCon,
   }
 
   NFSoundCardDriverInternals *internals = (NFSoundCardDriverInternals *)inRefCon;
-  bool silence = !internals->isPlaying || !internals->adapter->getFrames(
-      reinterpret_cast<float *>(ioData->mBuffers[0].mData),
-      reinterpret_cast<float *>(ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData),
-      static_cast<int>(inNumberFrames),
-      static_cast<int>(ioData->mNumberBuffers));
+  bool silence =
+      !internals->isPlaying ||
+      !internals->adapter->getFrames(
+          reinterpret_cast<float *>(ioData->mBuffers[0].mData),
+          reinterpret_cast<float *>(ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData),
+          static_cast<int>(inNumberFrames),
+          static_cast<int>(ioData->mNumberBuffers));
 
   if (silence) {
     *ioActionFlags |= kAudioUnitRenderAction_OutputIsSilence;
