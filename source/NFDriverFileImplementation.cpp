@@ -25,13 +25,23 @@
 namespace nativeformat {
 namespace driver {
 
+int bytesPerFormat(NFDriverFileWAVHeaderAudioFormat wav_format) {
+    switch (wav_format) {
+        case NFDriverFileWAVHeaderAudioFormatPCM:
+            return sizeof(short);
+        case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
+            return sizeof(float);
+    }
+}
+
 NFDriverFileImplementation::NFDriverFileImplementation(void *clientdata,
                                                        NF_STUTTER_CALLBACK stutter_callback,
                                                        NF_RENDER_CALLBACK render_callback,
                                                        NF_ERROR_CALLBACK error_callback,
                                                        NF_WILL_RENDER_CALLBACK will_render_callback,
                                                        NF_DID_RENDER_CALLBACK did_render_callback,
-                                                       const char *output_destination)
+                                                       const char *output_destination,
+                                                       NFDriverFileWAVHeaderAudioFormat wav_format)
     : _clientdata(clientdata),
       _stutter_callback(stutter_callback),
       _render_callback(render_callback),
@@ -39,6 +49,7 @@ NFDriverFileImplementation::NFDriverFileImplementation(void *clientdata,
       _will_render_callback(will_render_callback),
       _did_render_callback(did_render_callback),
       _output_destination(output_destination),
+      _wav_format(wav_format),
       _thread(nullptr) {}
 
 NFDriverFileImplementation::~NFDriverFileImplementation() {
@@ -94,30 +105,44 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   std::memcpy(header.WAVE, "WAVE", 4);
   std::memcpy(header.FMT, "fmt ", 4);
   header.sixteen = 16;
-  header.audioFormat = 3;
-  header.numChannels = 2;
-  header.bitsPerSample = 32;
+  header.audioFormat = driver->_wav_format;
+  header.numChannels = NF_DRIVER_CHANNELS;
+  header.bitsPerSample = bytesPerFormat(driver->_wav_format) * 8;
   header.samplerate = NF_DRIVER_SAMPLERATE;
-  header.byteRate = header.samplerate * header.numChannels * (header.bitsPerSample >> 3);
-  header.blockAlign = header.numChannels * (header.bitsPerSample >> 3);
+  header.byteRate = header.samplerate * header.numChannels * (header.bitsPerSample / 8);
+  header.blockAlign = header.numChannels * (header.bitsPerSample / 8);
   std::memcpy(header.DATA, "data", 4);
   fwrite(&header, 1, sizeof(header), fhandle);
 
   // Rendering.
   const auto buffer_samples = NF_DRIVER_SAMPLE_BLOCK_SIZE * NF_DRIVER_CHANNELS;
   float buffer[buffer_samples];
-  size_t numFrames = 0;
+  size_t num_frames = 0;
   while (driver->_run) {
     for (int i = 0; i < buffer_samples; ++i) {
       buffer[i] = 0.0f;
     }
     driver->_will_render_callback(driver->_clientdata);
-    numFrames =
+    num_frames =
         (size_t)driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE);
-    if (numFrames < 1) {
+    if (num_frames < 1) {
       driver->_stutter_callback(driver->_clientdata);
     } else {
-      fwrite(buffer, sizeof(float), numFrames * NF_DRIVER_CHANNELS, fhandle);
+        switch (driver->_wav_format) {
+            case NFDriverFileWAVHeaderAudioFormatPCM: {
+                short converted_samples[num_frames * NF_DRIVER_CHANNELS];
+                for (int i = 0; i < num_frames; ++i) {
+                    for (int j = 0; j < NF_DRIVER_CHANNELS; ++j) {
+                        converted_samples[(i * NF_DRIVER_CHANNELS) + j] = buffer[(i * NF_DRIVER_CHANNELS) + j] * std::numeric_limits<short>::max();
+                    }
+                }
+                fwrite(converted_samples, sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
+                break;
+            }
+            case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
+                fwrite(buffer, sizeof(float), num_frames * NF_DRIVER_CHANNELS, fhandle);
+                break;
+        }
     }
 
     driver->_did_render_callback(driver->_clientdata);

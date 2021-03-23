@@ -101,6 +101,8 @@ typedef void (*NF_ERROR_CALLBACK)(void *clientdata, const char *errorMessage, in
 extern const char *version();
 /// The key to use when specifying the bitrate to the driver.
 extern const std::string NF_DRIVER_BITRATE_KEY;
+/// The key to use when specifying what size the WAV samples should be.
+extern const std::string NF_DRIVER_WAV_SIZE_KEY;
 
 /*!
  * Interface used tracking state of the audio output.
