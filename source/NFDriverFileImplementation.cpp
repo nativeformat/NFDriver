@@ -117,24 +117,20 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
   // Rendering.
   const auto buffer_samples = NF_DRIVER_SAMPLE_BLOCK_SIZE * NF_DRIVER_CHANNELS;
   float buffer[buffer_samples];
-  size_t num_frames = 0;
   while (driver->_run) {
     for (int i = 0; i < buffer_samples; ++i) {
       buffer[i] = 0.0f;
     }
     driver->_will_render_callback(driver->_clientdata);
-    num_frames =
-        (size_t)driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE);
+    const size_t num_frames = static_cast<size_t>(driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE));
     if (num_frames < 1) {
       driver->_stutter_callback(driver->_clientdata);
     } else {
         switch (driver->_wav_format) {
             case NFDriverFileWAVHeaderAudioFormatPCM: {
                 short converted_samples[num_frames * NF_DRIVER_CHANNELS];
-                for (int i = 0; i < num_frames; ++i) {
-                    for (int j = 0; j < NF_DRIVER_CHANNELS; ++j) {
-                        converted_samples[(i * NF_DRIVER_CHANNELS) + j] = buffer[(i * NF_DRIVER_CHANNELS) + j] * std::numeric_limits<short>::max();
-                    }
+                for (int i = 0; i < num_frames * NF_DRIVER_CHANNELS; ++i) {
+                    converted_samples[i] = buffer[i] * std::numeric_limits<short>::max();
                 }
                 fwrite(converted_samples, sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
                 break;
