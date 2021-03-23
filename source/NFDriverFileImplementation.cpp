@@ -27,13 +27,13 @@ namespace nativeformat {
 namespace driver {
 
 int bytesPerFormat(NFDriverFileWAVHeaderAudioFormat wav_format) {
-    switch (wav_format) {
-        case NFDriverFileWAVHeaderAudioFormatPCM:
-            return sizeof(short);
-        case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
-            return sizeof(float);
-    }
-    return sizeof(float);
+  switch (wav_format) {
+    case NFDriverFileWAVHeaderAudioFormatPCM:
+      return sizeof(short);
+    case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
+      return sizeof(float);
+  }
+  return sizeof(float);
 }
 
 NFDriverFileImplementation::NFDriverFileImplementation(void *clientdata,
@@ -124,23 +124,25 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
       buffer[i] = 0.0f;
     }
     driver->_will_render_callback(driver->_clientdata);
-    const size_t num_frames = static_cast<size_t>(driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE));
+    const size_t num_frames = static_cast<size_t>(
+        driver->_render_callback(driver->_clientdata, buffer, NF_DRIVER_SAMPLE_BLOCK_SIZE));
     if (num_frames < 1) {
       driver->_stutter_callback(driver->_clientdata);
     } else {
-        switch (driver->_wav_format) {
-            case NFDriverFileWAVHeaderAudioFormatPCM: {
-                std::vector<short> converted_samples(num_frames * NF_DRIVER_CHANNELS);
-                for (int i = 0; i < converted_samples.size(); ++i) {
-                    converted_samples[i] = static_cast<short>(buffer[i] * std::numeric_limits<short>::max());
-                }
-                fwrite(converted_samples.data(), sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
-                break;
-            }
-            case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
-                fwrite(buffer, sizeof(float), num_frames * NF_DRIVER_CHANNELS, fhandle);
-                break;
+      switch (driver->_wav_format) {
+        case NFDriverFileWAVHeaderAudioFormatPCM: {
+          std::vector<short> converted_samples(num_frames * NF_DRIVER_CHANNELS);
+          for (int i = 0; i < converted_samples.size(); ++i) {
+            converted_samples[i] =
+                static_cast<short>(buffer[i] * std::numeric_limits<short>::max());
+          }
+          fwrite(converted_samples.data(), sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
+          break;
         }
+        case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
+          fwrite(buffer, sizeof(float), num_frames * NF_DRIVER_CHANNELS, fhandle);
+          break;
+      }
     }
 
     driver->_did_render_callback(driver->_clientdata);

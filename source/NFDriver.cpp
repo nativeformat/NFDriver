@@ -46,17 +46,17 @@ int bitrateOption(const std::map<std::string, std::string> &options) {
 }
 
 NFDriverFileWAVHeaderAudioFormat wavsizeOption(const std::map<std::string, std::string> &options) {
-    if (options.count(NF_DRIVER_WAV_SIZE_KEY)) {
-        switch (std::stoi(options.at(NF_DRIVER_WAV_SIZE_KEY))) {
-            case 16:
-                return NFDriverFileWAVHeaderAudioFormatPCM;
-            case 32:
-                return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
-            default:
-                assert(false && "Invalid wav size option, must be 16 or 32");
-        }
+  if (options.count(NF_DRIVER_WAV_SIZE_KEY)) {
+    switch (std::stoi(options.at(NF_DRIVER_WAV_SIZE_KEY))) {
+      case 16:
+        return NFDriverFileWAVHeaderAudioFormatPCM;
+      case 32:
+        return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
+      default:
+        assert(false && "Invalid wav size option, must be 16 or 32");
     }
-    return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
+  }
+  return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
 }
 
 NFDriver *NFDriver::createNFDriver(void *clientdata,
