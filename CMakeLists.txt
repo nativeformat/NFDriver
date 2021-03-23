@@ -79,6 +79,7 @@ if(WIN32)
 endif()
 
 add_subdirectory(source)
+add_subdirectory(libraries)
 
 execute_process(COMMAND python
   "${CMAKE_CURRENT_SOURCE_DIR}/tools/generate-version.py"
