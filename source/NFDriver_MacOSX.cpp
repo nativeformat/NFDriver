@@ -81,22 +81,27 @@ static OSStatus audioOutputCallback(void *inRefCon,
                                     UInt32 inBusNumber,
                                     UInt32 inNumberFrames,
                                     AudioBufferList *ioData) {
-  if ((ioData->mNumberBuffers < 1) || (inNumberFrames < 1)) return kAudioUnitErr_InvalidParameter;
+  if ((ioData->mNumberBuffers < 1) || (inNumberFrames < 1)) {
+    return kAudioUnitErr_InvalidParameter;
+  }
 
   NFSoundCardDriverInternals *internals = (NFSoundCardDriverInternals *)inRefCon;
-  bool silence = !internals->adapter->getFrames(
-      reinterpret_cast<float *>(ioData->mBuffers[0].mData),
-      reinterpret_cast<float *>(ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData),
-      static_cast<int>(inNumberFrames),
-      static_cast<int>(ioData->mNumberBuffers));
+  bool silence =
+      !internals->isPlaying ||
+      !internals->adapter->getFrames(
+          reinterpret_cast<float *>(ioData->mBuffers[0].mData),
+          reinterpret_cast<float *>(ioData->mBuffers[ioData->mNumberBuffers < 2 ? 0 : 1].mData),
+          static_cast<int>(inNumberFrames),
+          static_cast<int>(ioData->mNumberBuffers));
 
   if (silence) {
     *ioActionFlags |= kAudioUnitRenderAction_OutputIsSilence;
     // Despite of the kAudioUnitRenderAction_OutputIsSilence flag, the output
     // may be garbage sometimes (Core Audio is not bug free either). Have to
     // zero the buffers:
-    for (UInt32 n = 0; n < ioData->mNumberBuffers; n++)
+    for (UInt32 n = 0; n < ioData->mNumberBuffers; n++) {
       memset(ioData->mBuffers[n].mData, 0, ioData->mBuffers[n].mDataByteSize);
+    }
   };
   return noErr;
 }
@@ -139,6 +144,9 @@ NFSoundCardDriver::NFSoundCardDriver(void *clientdata,
              kAudioObjectPropertyElementMaster};
   AudioObjectAddPropertyListener(
       kAudioObjectSystemObject, &address, defaultDeviceChangedCallback, internals);
+
+  // Begin the audio unit to prevent core audio from hanging on first start
+  startAudioUnitIfNeeded(internals);
 }
 
 NFSoundCardDriver::~NFSoundCardDriver() {
@@ -161,21 +169,25 @@ void NFSoundCardDriver::setPlaying(bool playing) {
   if (dispatch_get_specific(mainQueueKey) == mainQueueKey) {  // Happens on the main thread.
     internals->isPlaying = playing;
 
-    if (playing)
+    if (playing) {
       startAudioUnitIfNeeded(internals);
-    else if (internals->outputAudioUnit) {
-      if (AudioOutputUnitStop(internals->outputAudioUnit) != noErr)
+    } else if (internals->outputAudioUnit) {
+      if (AudioOutputUnitStop(internals->outputAudioUnit) != noErr) {
         internals->errorCallback(internals->clientdata, "Can't stop the output audio unit.", 0);
+      }
     }
-  } else
+  } else {
     dispatch_async(dispatch_get_main_queue(),
                    ^{  // Or call it on the main thread otherwise.
                      setPlaying(playing);
                    });
+  }
 }
 
 static void destroyAudioUnit(AudioComponentInstance *unit) {
-  if (*unit == NULL) return;
+  if (*unit == NULL) {
+    return;
+  }
   AudioOutputUnitStop(*unit);
   AudioUnitUninitialize(*unit);
   AudioComponentInstanceDispose(*unit);
@@ -184,15 +196,17 @@ static void destroyAudioUnit(AudioComponentInstance *unit) {
 
 static void startAudioUnitIfNeeded(NFSoundCardDriverInternals *internals) {
   if (dispatch_get_specific(mainQueueKey) == mainQueueKey) {  // Happens on the main thread.
-    if (internals->isPlaying && internals->outputAudioUnit) {
-      if (AudioOutputUnitStart(internals->outputAudioUnit) != noErr)
+    if (internals->outputAudioUnit) {
+      if (AudioOutputUnitStart(internals->outputAudioUnit) != noErr) {
         internals->errorCallback(internals->clientdata, "Can't start the output audio unit.", 0);
+      }
     }
-  } else
+  } else {
     dispatch_async(dispatch_get_main_queue(),
                    ^{  // Or call it on the main thread otherwise.
                      startAudioUnitIfNeeded(internals);
                    });
+  }
 }
 
 static void recreateAudioUnit(NFSoundCardDriverInternals *internals) {
