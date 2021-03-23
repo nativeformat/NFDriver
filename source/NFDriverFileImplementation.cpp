@@ -33,6 +33,7 @@ int bytesPerFormat(NFDriverFileWAVHeaderAudioFormat wav_format) {
         case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
             return sizeof(float);
     }
+    return sizeof(float);
 }
 
 NFDriverFileImplementation::NFDriverFileImplementation(void *clientdata,
