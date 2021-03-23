@@ -29,6 +29,11 @@
 namespace nativeformat {
 namespace driver {
 
+typedef enum : short {
+  NFDriverFileWAVHeaderAudioFormatPCM = 1,
+  NFDriverFileWAVHeaderAudioFormatIEEEFloat = 3
+} NFDriverFileWAVHeaderAudioFormat;
+
 class NFDriverFileImplementation : public NFDriver {
  public:
   bool isPlaying() const;
@@ -40,7 +45,8 @@ class NFDriverFileImplementation : public NFDriver {
                              NF_ERROR_CALLBACK error_callback,
                              NF_WILL_RENDER_CALLBACK will_render_callback,
                              NF_DID_RENDER_CALLBACK did_render_callback,
-                             const char *output_destination);
+                             const char *output_destination,
+                             NFDriverFileWAVHeaderAudioFormat wav_format);
   ~NFDriverFileImplementation();
 
  private:
@@ -51,6 +57,7 @@ class NFDriverFileImplementation : public NFDriver {
   const NF_WILL_RENDER_CALLBACK _will_render_callback;
   const NF_DID_RENDER_CALLBACK _did_render_callback;
   const std::string _output_destination;
+  const NFDriverFileWAVHeaderAudioFormat _wav_format;
 
   std::shared_ptr<std::thread> _thread;
   std::atomic<bool> _run;

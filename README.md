@@ -43,7 +43,7 @@ In terms of bouncing to files, our support table looks like so:
 
 | Format | Options       | Comments                                                       | Support                           |
 | ------ | ------------- | -------------------------------------------------------------- | --------------------------------- |
-| WAV    |               | Writes a 32 bit IEEE Float WAV file to the output destination. | iOS, OSX, Linux, Android, Windows |
+| WAV    | wavsize : int | Writes a WAV file to the output destination.                   | iOS, OSX, Linux, Android, Windows |
 | MP3    | bitrate : int | Writes an MP3 file to the output destination.                  | iOS, OSX, Linux, Android          |
 | AAC    | bitrate : int | Writes an AAC file to the output destination.                  | iOS, OSX                          |
 
@@ -58,6 +58,7 @@ add_subdirectory(NFDriver)
 ```
 
 ### For iOS/OSX
+
 Generate an Xcode project from the Cmake project like so:
 
 ```shell

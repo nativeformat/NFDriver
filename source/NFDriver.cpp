@@ -36,12 +36,27 @@ const char *version() {
 }
 
 extern const std::string NF_DRIVER_BITRATE_KEY = "bitrate";
+extern const std::string NF_DRIVER_WAV_SIZE_KEY = "wavsize";
 
 int bitrateOption(const std::map<std::string, std::string> &options) {
   if (options.count(NF_DRIVER_BITRATE_KEY)) {
     return std::stoi(options.at(NF_DRIVER_BITRATE_KEY));
   }
   return 128;
+}
+
+NFDriverFileWAVHeaderAudioFormat wavsizeOption(const std::map<std::string, std::string> &options) {
+  if (options.count(NF_DRIVER_WAV_SIZE_KEY)) {
+    switch (std::stoi(options.at(NF_DRIVER_WAV_SIZE_KEY))) {
+      case 16:
+        return NFDriverFileWAVHeaderAudioFormatPCM;
+      case 32:
+        return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
+      default:
+        assert(false && "Invalid wav size option, must be 16 or 32");
+    }
+  }
+  return NFDriverFileWAVHeaderAudioFormatIEEEFloat;
 }
 
 NFDriver *NFDriver::createNFDriver(void *clientdata,
@@ -68,7 +83,8 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                             error_callback,
                                             will_render_callback,
                                             did_render_callback,
-                                            output_destination);
+                                            output_destination,
+                                            wavsizeOption(options));
     case OutputTypeMP3File:
 #if _WIN32
       assert(false && "No support for MP3 file driver on windows.");
