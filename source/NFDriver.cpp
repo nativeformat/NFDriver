@@ -23,6 +23,7 @@
 #include <cassert>
 
 #include "NFDriverAdapter.h"
+#include "NFDriverFileAACImplementation.h"
 #include "NFDriverFileImplementation.h"
 #include "NFDriverFileMP3Implementation.h"
 #include "nfdriver_generated_header.h"
@@ -80,6 +81,19 @@ NFDriver *NFDriver::createNFDriver(void *clientdata,
                                                did_render_callback,
                                                output_destination,
                                                bitrateOption(options));
+#endif
+    case OutputTypeAACFile:
+#if __APPLE__
+      return new NFDriverFileAACImplementation(clientdata,
+                                               stutter_callback,
+                                               render_callback,
+                                               error_callback,
+                                               will_render_callback,
+                                               did_render_callback,
+                                               output_destination,
+                                               bitrateOption(options));
+#else
+      assert(false && "No support for AAC file driver on this platform.");
 #endif
   }
   return 0;

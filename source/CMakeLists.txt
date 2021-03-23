@@ -46,19 +46,27 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT IOS AND NOT ANDROID)
     SOURCE_FILES
     NFDriver_MacOSX.cpp
     NFDriverFileMP3Implementation.h
-    NFDriverFileMP3Implementation.cpp)
+    NFDriverFileMP3Implementation.cpp
+    NFDriverFileAACImplementation.h
+    NFDriverFileAACImplementation.cpp)
   find_library(AUDIO_UNIT AudioUnit)
   find_library(CORE_AUDIO CoreAudio)
+  find_library(AUDIO_TOOLBOX AudioToolbox)
+  find_library(CORE_FOUNDATION CoreFoundation)
   list(APPEND
     LINK_LIBRARIES
     ${AUDIO_UNIT}
-    ${CORE_AUDIO})
+    ${CORE_AUDIO}
+    ${AUDIO_TOOLBOX}
+    ${CORE_FOUNDATION})
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND IOS AND NOT ANDROID)
   list(APPEND
     SOURCE_FILES
-    NFDriver_iOS.mm)
+    NFDriver_iOS.mm
+    NFDriverFileAACImplementation.h
+    NFDriverFileAACImplementation.cpp)
   find_library(AVFOUNDATION AVFoundation)
   find_library(CORE_AUDIO CoreAudio)
   find_library(AUDIO_TOOLBOX AudioToolbox)
