@@ -21,6 +21,7 @@
 #include "NFDriverFileImplementation.h"
 
 #include <cstring>
+#include <vector>
 
 namespace nativeformat {
 namespace driver {
@@ -128,11 +129,11 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
     } else {
         switch (driver->_wav_format) {
             case NFDriverFileWAVHeaderAudioFormatPCM: {
-                short converted_samples[num_frames * NF_DRIVER_CHANNELS];
-                for (int i = 0; i < num_frames * NF_DRIVER_CHANNELS; ++i) {
+                std::vector<short> converted_samples(num_frames * NF_DRIVER_CHANNELS);
+                for (int i = 0; i < converted_samples.size(); ++i) {
                     converted_samples[i] = buffer[i] * std::numeric_limits<short>::max();
                 }
-                fwrite(converted_samples, sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
+                fwrite(converted_samples.data(), sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
                 break;
             }
             case NFDriverFileWAVHeaderAudioFormatIEEEFloat:
