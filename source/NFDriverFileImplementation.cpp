@@ -131,7 +131,7 @@ void NFDriverFileImplementation::run(NFDriverFileImplementation *driver) {
             case NFDriverFileWAVHeaderAudioFormatPCM: {
                 std::vector<short> converted_samples(num_frames * NF_DRIVER_CHANNELS);
                 for (int i = 0; i < converted_samples.size(); ++i) {
-                    converted_samples[i] = buffer[i] * std::numeric_limits<short>::max();
+                    converted_samples[i] = static_cast<short>(buffer[i] * std::numeric_limits<short>::max());
                 }
                 fwrite(converted_samples.data(), sizeof(short), num_frames * NF_DRIVER_CHANNELS, fhandle);
                 break;
