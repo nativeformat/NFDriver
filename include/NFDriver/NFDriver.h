@@ -47,7 +47,8 @@ namespace driver {
 typedef enum {
   OutputTypeSoundCard, /*!< Output to hardware (the local sound card). */
   OutputTypeFile,      /* Output to a file. */
-  OutputTypeMP3File    /* Output to an MP3 file at 96 kbps. */
+  OutputTypeMP3File,   /* Output to an MP3 file. */
+  OutputTypeAACFile    /* Output to an AAC file. */
 } OutputType;
 
 /*! Number of samples to process at a time */

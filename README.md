@@ -45,11 +45,14 @@ In terms of bouncing to files, our support table looks like so:
 | ------ | ------------- | -------------------------------------------------------------- | --------------------------------- |
 | WAV    |               | Writes a 32 bit IEEE Float WAV file to the output destination. | iOS, OSX, Linux, Android, Windows |
 | MP3    | bitrate : int | Writes an MP3 file to the output destination.                  | iOS, OSX, Linux, Android          |
+| AAC    | bitrate : int | Writes an AAC file to the output destination.                  | iOS, OSX                          |
 
 Note that using MP3 will require you to define the environment variable `LAME_DYLIB`. Make sure you allow your users the option to replace this library to comply with its [LGPL License](https://lame.sourceforge.io/license.txt). We do not statically link against LAME so we do not take on its LGPL status and retain our MIT license.
 
 ## Installation :inbox_tray:
+
 `NFDriver` is a cmake project, while you can feel free to download the prebuilt static libraries it is recommended to use cmake to install this project into your wider project. In order to add this into a wider Cmake project, simply add the following line to your `CMakeLists.txt` file:
+
 ```
 add_subdirectory(NFDriver)
 ```
