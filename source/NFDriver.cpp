@@ -23,9 +23,9 @@
 #include <cassert>
 
 #include "NFDriverAdapter.h"
+#include "NFDriverFileAACImplementation.h"
 #include "NFDriverFileImplementation.h"
 #include "NFDriverFileMP3Implementation.h"
-#include "NFDriverFileAACImplementation.h"
 #include "nfdriver_generated_header.h"
 
 namespace nativeformat {
