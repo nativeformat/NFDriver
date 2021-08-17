@@ -164,7 +164,7 @@ The above will output a sine wave at 2kHz on the audio card.
 Contributions are welcomed, have a look at the [CONTRIBUTING.md](CONTRIBUTING.md) document for more information.
 
 ## License :memo:
-The project is available under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
+The project is available under the [Apache 2.0](LICENSE) license.
 
 ### Acknowledgements
 - Icon in readme banner is “[Audio](https://thenounproject.com/search/?q=audio&i=1514798)” by Becris from the Noun Project.
