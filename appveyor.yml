@@ -1,8 +1,15 @@
 image:
 - Visual Studio 2017
 
+environment:
+  APPVEYOR_RDP_PASSWORD: Sp0tify4321
+  
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 build_script:
 - git submodule update --init --recursive
+- pd: Start-Sleep -s 600
 - ps: ci/windows.ps1
 
 artifacts:
