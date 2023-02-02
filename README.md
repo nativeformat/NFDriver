@@ -3,7 +3,6 @@
 [![CircleCI](https://circleci.com/gh/spotify/NFDriver/tree/master.svg?style=svg)](https://circleci.com/gh/spotify/NFDriver/tree/master)
 [![Build status](https://ci.appveyor.com/api/projects/status/m2bn47mr3u26k6jq/branch/master?svg=true)](https://ci.appveyor.com/project/8W9aG/nfdriver/branch/master)
 [![License](https://img.shields.io/github/license/spotify/NFDriver.svg)](LICENSE)
-[![Spotify FOSS Slack](https://slackin.spotify.com/badge.svg)](https://slackin.spotify.com)
 [![Readme Score](http://readme-score-api.herokuapp.com/score.svg?url=https://github.com/spotify/nfdriver)](http://clayallsopp.github.io/readme-score?url=https://github.com/spotify/nfdriver)
 
 A cross platform C++ audio driver with low latency.
@@ -13,6 +12,8 @@ A cross platform C++ audio driver with low latency.
 - [x] 🐧 Ubuntu Bionic 18.04+ (clang 3.9 or gcc 7.5)
 - [x] 🤖 Android NDK r17b+
 - [x] 🖥️ Microsoft Windows Store 10
+
+Developed at Spotify 2019-2022, Discontinued and handed over to new maintainers January 2023
 
 ## Raison D'être :thought_balloon:
 
