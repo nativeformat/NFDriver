@@ -20,6 +20,8 @@
  */
 #include <NFDriver/NFDriver.h>
 
+#include <cstdlib>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
@@ -86,8 +88,8 @@ int main(int argc, const char *argv[]) {
   const std::string samplerate_string = "44100.0";
 #else
   if (argc < 2) {
-    std::cout << "Invalid number of arguments: ./NFDriver [samplerate]" << std::endl;
-    return 1;
+    std::cerr << "Invalid number of arguments: ./NFDriver [samplerate]" << std::endl;
+    std::exit(1);
   }
   const std::string samplerate_string = argv[1];
 #endif
